@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Hotel_Air_Conditioning_System", "Hotel_Air_Conditioning_System\Hotel_Air_Conditioning_System.pyproj", "{BE44A4CD-B49A-41F2-B84D-317D052F6752}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE44A4CD-B49A-41F2-B84D-317D052F6752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE44A4CD-B49A-41F2-B84D-317D052F6752}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE44A4CD-B49A-41F2-B84D-317D052F6752}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE44A4CD-B49A-41F2-B84D-317D052F6752}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DFB74B8F-BC80-4800-849B-B75D8B61502D}
+	EndGlobalSection
+EndGlobal
