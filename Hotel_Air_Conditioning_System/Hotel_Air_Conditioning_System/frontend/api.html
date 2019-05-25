@@ -1,0 +1,112 @@
+<html>
+
+<head>
+    <meta charset='UTF-8' />
+    <title>API</title>
+</head>
+
+<body>
+    <h2>API</h2>
+    <h3>约定</h3>
+    <ul>
+        <li>管理端只接受StatusCode=200，即认为只可能发生网络中断的错误</li>
+        <li>用户端只接受StatusCode=[200|400]，即认为只可能发生网络中断的错误或者客户端被锁定的异常</li>
+        <li>空调的可控温度为[16,30]</li>
+        <li>所有http均使用post方法</li>
+        <li>参数全部放在post request data而不是url中</li>
+        <li>结果全部放在response data中，除了个别返回json外，其他都是简单基本类型（的文本字符串）</li>
+    </ul>
+    <h2>supervisor 管理员端</h2>
+    <ul>
+        <li>refresh //管理端刷新
+            <ul>
+                <li>url = http://HOST/sup/refresh</li>
+                <li>response = json( ArrayList&ltRow&gt )
+                    <pre>
+            class Row{
+                String  id;                 //房号
+                float   price;              //累计计价
+                byte    temp;               //当前室温
+                boolean locked;             //是否处于锁定状态
+                boolean on;                 //空调是否开启
+                Byte    target; (optional)  //目标温度，约定范围[16,30]，可为空
+            }
+                    </pre>
+                </li>
+            </ul>
+        </li>
+        <br>
+        <li>lock //管理端锁定和解锁命令
+            <ul>
+                <li>url = http://HOST/sup/lock</li>
+                <li>param = [0|1] //分别表示解锁或锁定 </li>
+            </ul>
+        </li>
+        <br>
+        <li>switch //管理端空调开关命令
+            <ul>
+                <li>url = http://HOST/sup/switch</li>
+                <li>param = [0|1] //分别表示关闭和开启</li>
+            </ul>
+        </li>
+        <br>
+        <li>tmp //管理端调温
+            <ul>
+                <li>url = http://HOST/sup/tmp</li>
+                <li>param = Byte(); //目标温度，约定范围[16,30]</li>
+            </ul>
+        </li>
+    </ul>
+    <br>
+    <h2>client 用户端</h2>
+    <ul>
+        <li>refresh //用户端刷新
+            <ul>
+                <li>url = http://HOST/client/refresh</li>
+                <li>param = String() //房号id的字符串</li>
+                <li>response = json( ClientData )
+                    <pre>
+            class ClientData{
+                float   price;              //累计计价
+                byte    temp;               //当前室温
+                boolean locked;             //是否处于锁定状态
+                boolean on;                 //空调是否开启
+                Byte    target; (optional)  //目标温度，约定范围[16,30]，可为空
+            }
+                </pre>
+                </li>
+            </ul>
+        </li>
+        <br>
+        <li>switch //用户端空调开关命令
+            <ul>
+                <li>url = http://HOST/client/switch</li>
+                <li>param = json(Param)
+                    <pre>
+            class Param{
+                String  id;  //房号id
+                boolean on;  //true表示开，false表示关
+            }
+            </pre>
+            <li>extra status code : 400 //表示用户端已经被锁定，操作无效</li>
+            </ul>
+        </li>
+        <br>
+        <li>tmp //用户端调温
+            <ul>
+                <li>url = http://HOST/client/tmp</li>
+                <li>param = json(Param)
+                    <pre>
+            class Param{
+                String id;     //房号id
+                Byte   target; //目标温度，约定范围[16,30]
+            }
+            </pre>
+                </li>
+                <li>extra status code : 400 //表示用户端已经被锁定，操作无效</li>
+            </ul>
+        </li>
+    </ul>
+</body>
+
+</html>

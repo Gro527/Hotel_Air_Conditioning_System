@@ -1,0 +1,125 @@
+﻿<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title> 酒店管理员系统 </title>
+    <script src="./resource/handsontable/dist/handsontable.full.js"></script>
+    <script src="./resource/handsontable/dist/languages/zh-CN.js"></script>
+    <link href="./resource/handsontable/dist/handsontable.full.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+    <div id="table"></div>
+    <p></p>
+</body>
+
+<script> // data and commands
+    var data = [
+        { id: 1, total: 0.0, temp: 25, lock: true, onOff: false },
+        { id: 2, total: 21.1, temp: 21, lock: false, onOff: true, target: 21, },
+        { id: 3, total: 1.4, temp: 25, lock: false, onOff: true, target: 25, },
+        { id: 4, total: 0.6, temp: 26, lock: true, onOff: true, target: 23, },
+        { id: 5, total: 5.8, temp: 25, lock: true, onOff: true },
+    ];
+    var container = document.getElementById('table');
+    function targetValidator(value, callback) {
+        if (Number.isInteger(value) && value >= 16 && value <= 30) callback(true);
+        else callback(false);
+    }
+    var hot = new Handsontable(container, {
+        language: "zh-CN",
+        filters: true,
+        multiColumnSorting: true,
+        allowInsertColumn: false,
+        allowInsertRow: false,
+        allowRemoveColumn: false,
+        allowRemoveRow: false,
+        dropdownMenu: ['alignment', 'filter_by_condition', 'filter_by_value', 'filter_operators', 'filter_action_bar'],
+        dataSchema: { id: null, lock: null, onOff: null, temp: null, target: null, total: null },
+        colHeaders: ["房号", "计价", "室温", "锁定", "开关", "标温"],
+        columns: [
+            { data: "id", type: 'numeric', className: "htCenter", editor: false },
+            { data: "total", type: 'numeric', editor: false },
+            { data: "temp", type: 'numeric', className: "htCenter", editor: false },
+            {
+                data: "lock", type: 'checkbox', className: "htCenter", multiColumnSorting: {
+                    indicator: false,
+                    headerAction: false,
+                }
+            },
+            {
+                data: "onOff", type: 'checkbox', className: "htCenter", multiColumnSorting: {
+                    indicator: false,
+                    headerAction: false,
+                }
+            },
+            { data: "target", type: 'numeric', className: "htCenter", validator: targetValidator, allowInvalid: false }
+        ],
+        data: data,
+
+        afterChange: (changes) => {
+            if (changes != null) {
+                changes.forEach(([row, prop, oldValue, newValue]) => {
+                    console.log("row=" + row + " prop=" + prop + " old=" + oldValue + " new=" + newValue);
+                    switch (prop) {
+                        case "lock":
+                            //todo
+                            break;
+                        case "onOff":
+                            //todo
+                            break;
+                        case "target":
+                            //todo
+                            break;
+                    }
+                    refresh();
+                });
+            }
+        }
+    });
+</script>
+<script> // refresh
+    var refureshButton = document.getElementById("refresh");
+    var refreshRequest = new XMLHttpRequest();
+    refreshRequest.onreadystatechange = function () {
+        if (refreshRequest.readyState == 4 && refreshRequest.status == 200) {
+            switch (refreshRequest.status) {
+                case 200:
+                    break;
+                default: break;
+            }
+        }
+    }
+    function refresh() { //fetch real-time data from server
+        refreshRequest.open("GET", "http://localhost:63674/supervisor", true);
+        refreshRequest.responseType = "text";
+        refreshRequest.timeout = 3000;
+        refreshRequest.send();
+    }
+    //var refreshInterval = setInterval("refresh()", 10000);
+    refreshRequest.ontimeout = function () {
+        alert("服务器响应超时，请联系管理员");
+        console.error("刷新超时");
+        clearInterval(refreshInterval);
+    }
+</script>
+<script> // modify
+    var updateRequest = new XMLHttpRequest();
+    updateRequest.onreadystatechange = function () {
+        if (updateRequest.readyState == 4 && updateRequest.status == 200) {
+            switch (updateRequest.status) {
+                case 200:
+                    break;
+                default: break;
+            }
+        }
+    }
+    updateRequest.ontimeout = function () {
+        alert("操作超时，请联系管理员");
+        console.error("操作超时")
+        clearInterval(interval);
+    }
+</script>
+
+
+</html>
