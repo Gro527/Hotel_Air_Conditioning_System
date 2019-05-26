@@ -1,9 +1,9 @@
 ## 对应角色：管理员
 
 class StartUPController(object):
-    def CreateServPool():
+    def CreateServPool(self):
         pass
-    def CreateSchedule():
+    def CreateSchedule(self):
         pass
 
 

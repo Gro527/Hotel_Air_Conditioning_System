@@ -1,0 +1,27 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <script src="./resource/handsontable/dist/handsontable.full.js"></script>
+    <script src="./resource/handsontable/dist/languages/zh-CN.js"></script>
+    <link href="./resource/handsontable/dist/handsontable.full.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+    <p>状态：<lable id="status"></lable>
+    </p>
+    <p>当前温度：<lable id="curTmp"></lable>
+    </p>
+    <p>当前风速：<lable id="curSpeed"></lable>
+    </p>
+    <p>目标温度<input id="trgTmp" />
+        <button type="button" onclick="onTmpSubmit()">确定</button>
+    </p>
+    <p>目标风速
+        <input id="trgSpeed" />
+        <button type="button" onclick="onSpeedSubmit()">确定</button>
+    </p>
+    <button id="switch" type="button" onmousedown="onSwitch(this)">开启</button>
+</body>
+
+</html>

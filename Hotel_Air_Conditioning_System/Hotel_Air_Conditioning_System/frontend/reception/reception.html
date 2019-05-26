@@ -1,0 +1,162 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <script src="./resource/handsontable/dist/handsontable.full.js"></script>
+    <script src="./resource/handsontable/dist/languages/zh-CN.js"></script>
+    <link href="./resource/handsontable/dist/handsontable.full.css" rel="stylesheet" media="screen">
+</head>
+
+
+<body>
+    <p>房号<input id="room" onchange="roomChanging()" type="text" /></p>
+    <button type="button" onclick="onInvoice()">账单</button>
+    <button type="button" onclick="onRDR()">详单</button>
+    <button id="printElem" type="button" onclick="onPrint()" style="display: none">打印</button>
+    <p>入住时间：<label id="dateIn"></label>
+    </p>
+    <p>退房时间：<label id="dateOut"></label>
+    </p>
+    <p id="totalElem" style="display: none">总金额：<label id="totalLabel"></label>
+    </p>
+    <div id="rdrTable" style="display: none"></div>
+</body>
+<script>
+    var totalElem = document.getElementById("totalElem");
+    var rdrTable = document.getElementById("rdrTable");
+    var dateIn = document.getElementById("dateIn");
+    var dateOut = document.getElementById("dateOut");
+    var roomIdElem = document.getElementById("room");
+    var printElem = document.getElementById("printElem");
+    
+    var rdrData;
+    var totalLabel = document.getElementById("totalLabel");
+    var container = document.getElementById('rdrTable');
+    var hot = new Handsontable(container, {
+        language: "zh-CN",
+        allowInsertColumn: false,
+        allowInsertRow: false,
+        allowRemoveColumn: false,
+        allowRemoveRow: false,
+        dataSchema: { time: null, rate: null, type: null, target: null},
+        colHeaders: ["开始时间", "费率", "状态", "目标温度"],
+        columns: [
+            { data: "time", type: 'text', className: "htCenter", editor: false },
+            { data: "rate", type: 'numeric', className: "htRight", editor: false },
+            { data: "type", type: 'text', className: "htCenter", editor: false },
+            { data: "target", type: 'numeric', className: "htCenter", editor: false },
+        ],
+        data: rdrData
+    });
+    function roomChanging() {
+        rdrTable.style.display = "none";
+        totalElem.style.display = "none";
+        printElem.style.display = "none";
+        dateIn.value = "";
+        dateOut.value = "";
+    }
+
+
+    var invoiceRequest = new XMLHttpRequest();
+    invoiceRequest.onreadystatechange = function () {
+        if (invoiceRequest.readyState == 4) {
+            if (invoiceRequest.status == 200) {
+                res = JSON.parse(invoiceRequest.responseText);
+                dateIn.value = res.dateIn;
+                dateOut.value = res.dateOut;
+                totalLabel.value = res.total;
+                printElem.style.display = "block";
+                rdrTable.style.display = "none";
+                totalElem.style.display = "block";
+                alert("房号不存在");
+                roomIdElem.value = "";
+            }
+            else {
+                console.error("invoice request error:" + invoiceRequest.status);
+                alert("系统异常，操作失败，请联系管理员");
+            }
+        }
+    }
+    invoiceRequest.ontimeout = function () {
+        alert("服务器响应超时，请联系管理员");
+        console.error("invoice request timeout!");
+    }
+    function onInvoice() {
+        if (/^\s*$/.test(roomIdElem.value)) {
+            alert("房号不能为空");
+        }
+        else {
+            invoiceRequest.open("POST", "http://192.168.1.2/inf/inv", true);
+            invoiceRequest.timeout = 3000;
+            invoiceRequest.send(roomIdElem.value);
+        }
+    }
+
+
+    var rdrRequest = new XMLHttpRequest();
+    rdrRequest.onreadystatechange = function () {
+        if (rdrRequest.readyState == 4) {
+            if (rdrRequest.status == 200) {
+                res = JSON.parse(rdrRequest.responseText);
+                dateIn.value = res.dateIn;
+                dateOut.value = res.dateOut;
+                tmpData.time = res.rdrData.time;
+                tmpData.rate = res.rdrData.rate;
+                tmpData.type = res.rdrData.action.type;
+                tmpDate.target=res.rdrData.action.target;
+                rdrData = tmpData;
+                printElem.style.display = "block";
+                rdrTable.style.display = "block";
+                totalElem.style.display = "none";
+            }
+            else {
+                console.error("RDR request error:" + rdrRequest.status);
+                alert("系统异常，操作失败，请联系管理员");
+            }
+        }
+    }
+    rdrRequest.ontimeout = function () {
+        alert("服务器响应超时，请联系管理员");
+        console.error("RDR request timeout!");
+    }
+    function onRDR() {
+        if (/^\s*$/.test(roomIdElem.value)) {
+            alert("房号不能为空");
+        }
+        else {
+            rdrRequest.open("POST", "http://192.168.1.2/inf/rdr", true);
+            rdrRequest.timeout = 3000;
+            rdrRequest.send(roomIdElem.value);
+        }
+    }
+
+    var printRequest = new XMLHttpRequest();
+    printRequest.onreadystatechange()= function () {
+        if (printRequest.readyState == 4) {
+            if (printRequest.status != 200) {
+                console.error("print request error:" + printRequest.status);
+                alert("系统异常，打印失败，请联系管理员");
+            }
+        }
+    }
+    printRequest.ontimeout= function () {
+        alert("服务器响应超时，请联系管理员");
+        console.error("print request timeout!");
+    }
+    function onPrint(){
+            printRequest.open("POST","http://192.168.1.2/print",true);
+            printRequest.timeout=3000;
+            if(rdrTable.style.display!="none"){
+                printRequest.send(JSON.stringify(tmpData));
+            }
+            else{
+                var inv=new Object();
+                inv.dateIn=dateIn.value;
+                inv.dateOut=dateOut.value;
+                inv.total=totalLabel.value;
+                printRequest.send(JSON.stringify(inv));
+            }
+    }
+</script>
+
+</html>

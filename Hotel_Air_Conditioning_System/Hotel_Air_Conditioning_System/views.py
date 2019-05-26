@@ -48,6 +48,5 @@ def manager_page():
 # 获取订单信息
 @app.route('/reception/api/invoice/<invoice_id>')
 def invoice(id):
-    from Hotel_Air_Conditioning_System.controller.CreateInvoiceController import cic
-    cic.CreateInvoice()
+    from Hotel_Air_Conditioning_System.controller.PrintInvoiceController import pic
 
