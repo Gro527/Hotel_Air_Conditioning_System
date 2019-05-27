@@ -9,3 +9,4 @@ db = "hacs_db"
 engine = create_engine("mysql+pymysql://" + uname + ":" + pw + "@" + address + ":" + str(port) + "/" + db, max_overflow = 5)
 
 base = declarative_base()
+

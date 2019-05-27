@@ -5,6 +5,9 @@ This script runs the Hotel_Air_Conditioning_System application using a developme
 from os import environ
 from Hotel_Air_Conditioning_System import app
 from Hotel_Air_Conditioning_System.dao import mapper
+from Hotel_Air_Conditioning_System.impl import ServicePool,Service,Schedule
+
+
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')

@@ -1,11 +1,12 @@
 ## 对应角色：前台
-from Hotel_Air_Conditioning_System.controller import *  
+from Hotel_Air_Conditioning_System.impl import Invoice
+from Hotel_Air_Conditioning_System.dao import iInvoiceDAO
+import json
 
 class CreateInvoiceController(object):
     def CreateInvoice(self, room_id, date_in, date_out):
         invoice = Invoice.Invoice(room_id, date_in, date_out)
-        dao = iInvoiceDAO.iInvoiceDAO()
-        dao.sess.add(invoice)
-        dao.sess.commit()
+        idao = iInvoiceDAO.iInvoiceDAO()
+        total = idao.GetTotal(room_id,date_in,date_out)
 
 cic = CreateInvoiceController()

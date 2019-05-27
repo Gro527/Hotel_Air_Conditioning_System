@@ -1,5 +1,6 @@
+from datetime import datetime
 class Wait_Queue_Item(object):
-    __room_id
-    __speed
-    __wait_time
-
+    def __init__(self, room_id, speed):
+        self.room_id = room_id
+        self.speed = speed
+        self.start_time = datetime.now()

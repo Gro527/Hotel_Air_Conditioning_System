@@ -40,6 +40,6 @@ class iRecord(base):
 
 
 Session = sessionmaker(bind = engine)
-#session = Session()
+session = Session()
 
 init_db()

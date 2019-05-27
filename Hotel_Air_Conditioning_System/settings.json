@@ -1,0 +1,9 @@
+{
+    "mode": "Working",
+    "temp_highLimit": 30,
+    "temp_lowLimit" : 16,
+    "default_targetTemp" : 24,
+    "feeRate_H": 1.6,
+    "feeRate_M": 1.4,
+    "feeRate_L" : 1.2
+}
