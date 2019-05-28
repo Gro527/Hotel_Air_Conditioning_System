@@ -1,6 +1,7 @@
 ## 对应角色：管理员
 from Hotel_Air_Conditioning_System.impl import gDict,ServicePool,Schedule,StartUPHandler
 import json
+from Hotel_Air_Conditioning_System.impl.room import RoomList
 
 class StartUPController(object):
 
@@ -21,6 +22,8 @@ class StartUPController(object):
         gDict["settings"] = json.loads(
             open('settings.json').read()
         )
+        # 初始化房间信息
+        gDict["rooms"] = RoomList()
         res = {"state":"set_Mode"}
         return json.dumps(res)
 

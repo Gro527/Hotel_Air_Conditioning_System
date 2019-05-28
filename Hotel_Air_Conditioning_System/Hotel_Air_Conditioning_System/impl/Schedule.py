@@ -1,7 +1,11 @@
 ## 对应角色：管理员
 from Hotel_Air_Conditioning_System.impl import gDict
+from Hotel_Air_Conditioning_System.impl.Serv_Queue_Item import Serv_Queue_Item
+from Hotel_Air_Conditioning_System.impl.Wait_Queue_Item import Wait_Queue_Item
+import operator
 class Schedule(object):
     max_service = 3
+    unsolved_tmp_request = []
     def CreateServQueue(self):
         self.serv_queue = []
         print("服务队列已初始化")
@@ -10,52 +14,184 @@ class Schedule(object):
         print("等待队列已初始化")
     def SetState(self, State):
         pass
-    # 添加服务
-    def NewService(self):
-        pass
-    # 添加到等待队列
-    def NewWaiting(self):
-        pass
-    # 释放服务添加到等待队列（需计算此次服务的费用）
-    def ReleaseService(self, service_id):
-        pass
-    # 释放服务不添加到等待队列
-    def TerminateService(self, service_id):
-        pass
-    # 从等待队列中删除
-    def TerminateWaiting(self, room_id):
-        pass
 
-    # 在服务队列中查找房间号
+
+    ## 服务和队列操作
+    # 添加服务
+    def NewService(self, room_id, speed):
+        if gDict["serv_pool"].state != "ready":
+            print("服务对象未就绪")
+            return
+        if len(self.serv_queue) == self.max_service:
+            print("服务对象资源已满")
+            return 
+        for serv in gDict["serv_pool"].serv_list:
+            if serv.is_working == False:
+                self.serv_queue.append(Serv_Queue_Item(room_id, serv.service_id, speed))
+                serv.BindRoom(room_id, speed)
+                break
+    # 从等待队列开始服务
+    def WaitingToServing(self, room_id):
+        wait_item = self.SearchWaiting(room_id)
+        if wait_item == None:
+            print("错误！当前房间未处于等待队列！")
+            return
+        if len(self.serv_queue) == self.max_service:
+            print("服务对象资源已满")
+            return 
+        for serv in gDict["serv_pool"].serv_list:
+            if serv.is_working == False:
+                self.serv_queue.append(Serv_Queue_Item(room_id, serv.service_id, wait_item.speed))
+                serv.BindRoom(room_id, wait_item.speed)
+                self.wait_queue.remove(wait_item)
+                break
+    # 添加到等待队列
+    def NewWaiting(self, room_id, speed):
+        self.wait_queue.append(Wait_Queue_Item(room_id, speed))
+    # 释放服务添加到等待队列
+    def ReleaseService(self, service_id):
+        gDict["serv_pool"].serv_list[service_id].ReleaseRoom()
+        for serv in self.serv_queue:
+            if serv.service_id == service_id:
+                speed = serv.speed
+                room_id = serv.room_id
+                self.serv_queue.remove(serv)
+                self.NewWaiting(room_id, speed)
+                break
+    # 释放服务不添加到等待队列（需在数据库中记录一条off操作）
+    def TerminateService(self, service_id):
+        ## 数据库操作！！！！！
+        gDict["serv_pool"].serv_list[service_id].ReleaseRoom()
+        for serv in self.serv_queue:
+            if serv.service_id == service_id:
+                self.serv_queue.remove(serv)
+                break
+    # 从等待队列中删除(需在数据库中记录一条off操作)
+    def TerminateWaiting(self, room_id):
+        ## 数据库操作！！！！！
+        wait_item = self.SearchWaiting(room_id)
+        if wait_item != None:
+            self.wait_queue.remove(wait_item)
+
+    ## 查找操作
+    # 根据服务号查风速
+    def GetSpeed(self, service_id):
+        for obj in self.serv_queue:
+            if obj.service_id == service_id:
+                return obj.speed, obj.priority
+
+    # 在服务队列中根据房间号查找服务号
     def SearchServing(self, room_id):
         for obj in self.serv_queue:
             if obj.room_id == room_id:
                 service = gDict["serv_pool"].serv_list[obj.service_id]
                 return service.service_id
-        return -1
-    # 在等待队列中查找房间号
+        return None
+
+    # 在等待队列中查找房间号是否存在
     def SearchWaiting(self, room_id):
         for obj in self.wait_queue:
             if obj.room_id == room_id:
-                return True
-        return False
+                return obj
+        return None
 
+    # 查找服务优先级最低的服务
+    def GetLeastPriorService(self):
+        if len(self.serv_queue) == 0:
+            return None
+        ## 根据风速优先级排序
+        self.serv_queue.sort(key = operator.attrgetter('priority'))
+        least_priorty = self.serv_queue[0].priority
+        least_priorty_list = []
+        for serv in self.serv_queue:
+            if serv.priority == least_priorty:
+                least_priorty_list.append(serv)
+        ## 在风速最低的服务中根据服务开始时间排序
+        least_priorty_list.sort(key = operator.attrgetter('start_time'))
+        return least_priorty_list[0].service_id
+
+
+
+
+
+    ## 核心模块
     # 对请求进行调度
-    def OnRequest(self, room_id, req_type):
+    def OnRequest(self, room_id, req):
+        req_type = req.get("req_type", 0)
+        trg = req.get("trg", 0)
         ## 当前房间正在服务
         for serv in self.serv_queue:
             if serv.room_id == room_id:
                 if req_type == 'on':
                     return {"state":"OK"}
-                ##待添加
+                elif req_type == 'off':
+                    self.TerminateService(serv.service_id)
+                    return {"state":"OK"}
+                elif req_type == 'tmp':
+                    gDict["serv_pool"].serv_list[serv.service_id].SetTemp(trg)
+                    return {"state":"OK"}
+                elif req_type == 'spd':
+                    gDict["serv_pool"].serv_list[serv.service_id].SpdChange(trg)
+                    serv.SetSpeed(trg)
+                    return {"state":"OK"}
         ## 当前房间未在服务，且在等待队列中    
         for req in self.wait_queue:
             if req.room_id == room_id:
                 if req_type == 'on':
                     return {"state":"Waiting"}
+                elif req_type == 'off':
+                    self.TerminateWaiting(room_id)
+                    return {"state":"OK"}
+                elif req_type == 'tmp':
+                    self.unsolved_tmp_request.append({
+                        "room_id": room_id,
+                        "trg": trg
+                    })
+                elif req_type == 'spd':
+                    req.SetSpeed(trg)
+                    ## 取代优先级最低的当前服务
+                    least = self.GetLeastPriorService()
+                    if self.GetSpeed(least)[1] < req.priority:
+                        self.ReleaseService(least)
+                        self.WaitingToServing(req.room_id)
+                        return {"state":"OK"}
+                    else:
+                        return {"state":"Waiting"}
         ## 当前房间未在服务，且有空余服务对象资源
         if len(self.serv_queue) < self.max_service:
-            pass
+            if req_type == 'on':
+                ### 暂定开机默认风速为M，若策略有改变，请更改此处！！！
+                self.NewService(room_id, 'M')
+                return {"state":"OK"}
+            elif req_type == 'off':
+                return {"state":"OK"}
+            elif req_type == 'tmp':
+                return {"state":"Invalid"}
+            elif req_type == 'spd':
+                return {"state":"Invalid"}
+        ## 当前房间未在服务，未在等待，且无空余服务对象资源
+        else:
+            if req_type == 'on':
+                # 找出优先级最低的服务，若当前服务优先级高于其，则取而代之，反之加入等待队列
+                least = self.GetLeastPriorService()
+                if self.GetSpeed(least)[1] < 2:
+                    self.ReleaseService(least)
+                    self.NewService(room_id, 'M')
+                    return {"state":"OK"}
+                else:
+                    self.NewWaiting(room_id, 'M')
+                    return {"state":"Waiting"}
+            elif req_type == 'off':
+                return {"state":"OK"}
+            elif req_type == 'tmp':
+                return {"state":"Invalid"}
+            elif req_type == 'spd':
+                return {"state":"Invalid"}
+
+    # 轮转调度
+    def RoundRobin(self):
+        pass
+
     def __init__(self):
         print("调度对象已创建")
         self.CreateServQueue()
