@@ -17,4 +17,4 @@ class StartUPHandler(object):
         sf.write(json.dumps(settings))
         gDict["settings"] = settings
     def StartUp(self):
-        gDict["serv_pool"].setState("ready")
+        gDict["serv_pool"].SetState("ready")

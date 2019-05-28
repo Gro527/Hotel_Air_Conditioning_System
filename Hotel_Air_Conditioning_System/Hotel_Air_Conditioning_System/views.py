@@ -10,6 +10,7 @@ from Hotel_Air_Conditioning_System import app
 from Hotel_Air_Conditioning_System.controller import *
 from Hotel_Air_Conditioning_System import dao
 import json
+from Hotel_Air_Conditioning_System.impl import gDict
 
 
 
@@ -147,7 +148,8 @@ def RequestOff():
     room_id = params.get("roomID",0)
     if room_id == 0:
         return "roomID not found", 400
-    ## 。。。。。
+    oc = OperateController.OperateController()
+    return oc.RequestOff(room_id)
 
 # 调目标温度
 @app.route('/api/cos/tmp', methods=['POST'])
@@ -157,7 +159,8 @@ def ChangeTargetTemp():
     target_temp = params.get("trg",0)
     if room_id == 0 | target_temp == 0:
         return "roomID not found", 400
-    ## .....
+    oc = OperateController.OperateController()
+    return oc.ChangeTargetTemp(room_id, target_temp)
 
 # 调风速
 @app.route('/api/cos/spd', methods=['POST'])
@@ -167,7 +170,8 @@ def ChangeFanSpeed():
     target_spd = params.get("trg",0)
     if room_id == 0 | target_spd == 0:
         return "roomID not found", 400
-    ## .....
+    oc = OperateController.OperateController()
+    return oc.ChangeFanSpeed(room_id, target_spd)
 
 
 
@@ -217,3 +221,49 @@ def invoice(id):
     from Hotel_Air_Conditioning_System.dao.iInvoiceDAO import iInvoiceDAO
     idao = iInvoiceDAO()
     return str(idao.GetTotal(203, "2019-05-24", "2019-05-25"))
+
+# 查看系统当前状态
+@app.route('/api/state')
+def show_state():
+    res = {}
+    res["gDict_leys"] = str(gDict.keys())
+    rooms = gDict.get("rooms")
+    res["rooms"] = []
+    for room in rooms.list_room:
+        roominfo = {}
+        roominfo["room_id"] = room.room_id
+        roominfo["cur_tmp"] = room.cur_tmp
+        roominfo["last_op_time"] = str(room.last_op_time)
+        res["rooms"].append(roominfo)
+    serv_pool = gDict.get("serv_pool", 0)
+    if serv_pool != 0:
+        res["serv_pool_state"] = serv_pool.state
+        res["num_service"] = len(serv_pool.serv_list)
+        for serv in serv_pool.serv_list:
+            res["service"+str(serv.service_id)] = {}
+            res["service"+str(serv.service_id)]["is_working"] = serv.is_working
+            res["service"+str(serv.service_id)]["room_id"] = serv.room_id
+    else:
+        res["serv_pool"] = 0
+    schedule = gDict.get("schedule", 0)
+    if schedule != 0:
+        res["serv_queue"] = {}
+        res["wait_queue"] = {}
+        res["serv_queue"]["length"] = len(schedule.serv_queue)
+        for serv in schedule.serv_queue:
+            res["serv_queue"]["item"+str(serv.service_id)] = {}
+            res["serv_queue"]["item"+str(serv.service_id)]["room_id"] = serv.room_id
+            res["serv_queue"]["item"+str(serv.service_id)]["service_id"] = serv.service_id
+            res["serv_queue"]["item"+str(serv.service_id)]["speed"] = serv.speed
+            res["serv_queue"]["item"+str(serv.service_id)]["start_time"] = str(serv.start_time)
+        res["wait_queue"]["length"] = len(schedule.wait_queue)
+        for wait in schedule.wait_queue:
+            res["wait_queue"]["item"+str(schedule.wait_queue.index(wait))] = {}
+            res["wait_queue"]["item"+str(schedule.wait_queue.index(wait))]["room_id"] = wait.room_id
+            res["wait_queue"]["item"+str(schedule.wait_queue.index(wait))]["speed"] = wait.speed
+            res["wait_queue"]["item"+str(schedule.wait_queue.index(wait))]["start_time"] = str(wait.start_time)
+    else:
+        res["wait_pool"] = 0
+    res["settings"] = gDict.get("settings", 0)
+    print(res)
+    return json.dumps(res)
