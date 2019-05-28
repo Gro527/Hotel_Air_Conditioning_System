@@ -22,31 +22,22 @@ class Schedule(object):
     # 释放服务不添加到等待队列
     def TerminateService(self, service_id):
         pass
-    # 从
+    # 从等待队列中删除
+    def TerminateWaiting(self, room_id):
+        pass
 
     # 在服务队列中查找房间号
     def SearchServing(self, room_id):
         for obj in self.serv_queue:
             if obj.room_id == room_id:
                 service = gDict["serv_pool"].serv_list[obj.service_id]
-                return {
-                    "ocp":1,
-                    "state":"r",
-                    "curTmp": service.GetCurTmp(),
-                    "spd": obj.speed,
-                    "trgTmp": service.GetTrgTmp(),
-                    "total": service.ShowBill()
-                }
-        return False
+                return service.service_id
+        return -1
     # 在等待队列中查找房间号
     def SearchWaiting(self, room_id):
         for obj in self.wait_queue:
             if obj.room_id == room_id:
-                return {
-                    "ocp":1,
-                    "state":"w",
-                    
-                }
+                return True
         return False
 
     # 对请求进行调度
@@ -61,7 +52,7 @@ class Schedule(object):
         for req in self.wait_queue:
             if req.room_id == room_id:
                 if req_type == 'on':
-                    return {"state":"OK"}
+                    return {"state":"Waiting"}
         ## 当前房间未在服务，且有空余服务对象资源
         if len(self.serv_queue) < self.max_service:
             pass
