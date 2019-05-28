@@ -16,10 +16,15 @@ class Service(object):
         pass
     def SetState(self, state):
         self.state = state
+
+
+    def get
+    # 获取当前室温
     def GetCurTmp(self):
         if self.state == 'serving':
             pass
         return 28
+    # 获取目标温度
     def GetTrgTmp(self):
         pass
 
