@@ -17,7 +17,7 @@
     <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
     <Name>Hotel_Air_Conditioning_System</Name>
     <RootNamespace>Hotel_Air_Conditioning_System</RootNamespace>
-    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|env1|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,9 +36,7 @@
     <Compile Include="Hotel_Air_Conditioning_System\Controller\PrintRDRController.py" />
     <Compile Include="Hotel_Air_Conditioning_System\Controller\ReporterController.py" />
     <Compile Include="Hotel_Air_Conditioning_System\Controller\StartUPController.py" />
-    <Compile Include="Hotel_Air_Conditioning_System\controller\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Hotel_Air_Conditioning_System\controller\__init__.py" />
     <Compile Include="Hotel_Air_Conditioning_System\dao\connector.py">
       <SubType>Code</SubType>
     </Compile>
@@ -550,6 +548,15 @@
     <Content Include="Hotel_Air_Conditioning_System\templates\layout.html" />
   </ItemGroup>
   <ItemGroup>
+    <Interpreter Include="env1\">
+      <Id>env1</Id>
+      <Version>3.7</Version>
+      <Description>env1 (Python 3.7 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
     <Interpreter Include="env\">
       <Id>env</Id>
       <Version>3.7</Version>
