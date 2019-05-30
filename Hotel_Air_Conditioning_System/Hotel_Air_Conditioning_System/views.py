@@ -11,8 +11,8 @@ from Hotel_Air_Conditioning_System.controller import *
 from Hotel_Air_Conditioning_System import dao
 import json
 from Hotel_Air_Conditioning_System.impl import gDict
-
-
+from flask_apscheduler import APScheduler
+from flask import current_app
 
 ##兼容QT转发模块
 @app.route('/', methods=['GET','POST'])
@@ -129,7 +129,9 @@ def refresh():
     if params.get("roomID", 0) == 0:
         return "roomID not found", 400
     roomID = params["roomID"]
-    ## .....
+    oc = OperateController.OperateController()
+    return oc.Refresh(roomID)
+    
 
 # 开空调
 @app.route('/api/cos/on', methods=['POST'])
@@ -157,8 +159,10 @@ def ChangeTargetTemp():
     params = request.get_json()
     room_id = params.get("roomID",0)
     target_temp = params.get("trg",0)
-    if room_id == 0 | target_temp == 0:
+    if room_id == 0:
         return "roomID not found", 400
+    if target_temp == 0:
+        return "Invalid Request", 400
     oc = OperateController.OperateController()
     return oc.ChangeTargetTemp(room_id, target_temp)
 
@@ -168,8 +172,10 @@ def ChangeFanSpeed():
     params = request.get_json()
     room_id = params.get("roomID",0)
     target_spd = params.get("trg",0)
-    if room_id == 0 | target_spd == 0:
+    if room_id == 0:
         return "roomID not found", 400
+    if target_spd == 0:
+        return "Invalid Request", 400
     oc = OperateController.OperateController()
     return oc.ChangeFanSpeed(room_id, target_spd)
 
@@ -234,6 +240,8 @@ def show_state():
         roominfo["room_id"] = room.room_id
         roominfo["cur_tmp"] = room.cur_tmp
         roominfo["last_op_time"] = str(room.last_op_time)
+        roominfo["state"] = room.state
+        roominfo["trg_tmp"] = room.trg_tmp
         res["rooms"].append(roominfo)
     serv_pool = gDict.get("serv_pool", 0)
     if serv_pool != 0:
@@ -243,6 +251,7 @@ def show_state():
             res["service"+str(serv.service_id)] = {}
             res["service"+str(serv.service_id)]["is_working"] = serv.is_working
             res["service"+str(serv.service_id)]["room_id"] = serv.room_id
+            res["service"+str(serv.service_id)]["trg_tmp"] = serv.trg_tmp
     else:
         res["serv_pool"] = 0
     schedule = gDict.get("schedule", 0)
@@ -267,3 +276,8 @@ def show_state():
     res["settings"] = gDict.get("settings", 0)
     print(res)
     return json.dumps(res)
+
+
+@app.route('/api/job')
+def joblist():
+    return str(current_app.apscheduler.get_jobs())

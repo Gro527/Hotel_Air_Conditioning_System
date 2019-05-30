@@ -14,4 +14,26 @@ class OperateController(object):
         return json.dumps(gDict["schedule"].OnRequest(room_id, {"req_type":"off"}))
     def RequestFee(self, room_id):
         pass
-
+    def Refresh(self, room_id):
+        room = gDict["rooms"].get_room(room_id)
+        if room == None:
+            return {"state":"error"}
+        res = {}
+        res["state"] = room.state
+        if res["state"] == "R":
+            service = gDict["serv_pool"].GetService(room_id)
+            print("refresh: service_id = " , service.service_id)
+            res["curTmp"] = service.GetCurTmp()
+            # 刷新温度后，需重新刷新房间状态
+            res["state"] = room.state
+            if res["state"] != "R":
+                return json.dumps(res)
+            res["spd"] = service.GetCurSpd()
+            res["trgTmp"] = service.GetTrgTmp()
+            ## 由服务对象计算温度
+        else:
+            res["curTmp"] = room.ref_tmp()
+            ## 模拟房间回温
+        ## 计算费用
+        pass
+        return json.dumps(res)
