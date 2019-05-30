@@ -3,9 +3,30 @@ from Hotel_Air_Conditioning_System.impl import gDict
 from Hotel_Air_Conditioning_System.impl.Serv_Queue_Item import Serv_Queue_Item
 from Hotel_Air_Conditioning_System.impl.Wait_Queue_Item import Wait_Queue_Item
 import operator
+from flask_apscheduler import APScheduler
+from flask import current_app
+from datetime import datetime,timedelta
+from Hotel_Air_Conditioning_System import app
+
+# 时间片到，执行调度
+def Timeout(room_id):
+    print(room_id+': timeout')
+    sche = gDict["schedule"]
+    # 若有空闲服务，直接开始服务
+    if len(sche.serv_queue) < sche.max_service:
+        sche.WaitingToServing(room_id)
+    # 若无空闲服务
+    # 当前房间风速需至少大于等于一个正在服务的房间风速，才能进入服务队列
+    wait = sche.SearchWaiting(room_id)
+    if wait == None:
+        return
+    least_service_id = sche.GetLeastPriorService()
+    if wait.priority >= sche.GetSpeed(least_service_id)[1]:
+        sche.ReleaseService(least_service_id)
+        sche.WaitingToServing(room_id)
+
 class Schedule(object):
     max_service = 3
-    unsolved_tmp_request = []
     def CreateServQueue(self):
         self.serv_queue = []
         print("服务队列已初始化")
@@ -29,6 +50,8 @@ class Schedule(object):
             if serv.is_working == False:
                 self.serv_queue.append(Serv_Queue_Item(room_id, serv.service_id, speed))
                 serv.BindRoom(room_id, speed)
+                ## 更改房间状态
+                gDict["rooms"].get_room(room_id).set_state("R")
                 break
     # 从等待队列开始服务
     def WaitingToServing(self, room_id):
@@ -43,11 +66,23 @@ class Schedule(object):
             if serv.is_working == False:
                 self.serv_queue.append(Serv_Queue_Item(room_id, serv.service_id, wait_item.speed))
                 serv.BindRoom(room_id, wait_item.speed)
+                ## 更改房间状态
+                gDict["rooms"].get_room(room_id).set_state("R")
                 self.wait_queue.remove(wait_item)
                 break
     # 添加到等待队列
     def NewWaiting(self, room_id, speed):
         self.wait_queue.append(Wait_Queue_Item(room_id, speed))
+        # 添加到定时任务中
+        job = {
+            "id" : room_id,
+            "func" : 'Timeout'
+        }
+        result = app.apscheduler.add_job(func=__name__+':'+job['func'], id=job['id'], next_run_time= datetime.now()+timedelta(seconds=5),args=[room_id])
+        print(result)
+        
+        gDict["rooms"].get_room(room_id).set_state("W")
+        return {"state":"waiting"}
     # 释放服务添加到等待队列
     def ReleaseService(self, service_id):
         gDict["serv_pool"].serv_list[service_id].ReleaseRoom()
@@ -57,6 +92,7 @@ class Schedule(object):
                 room_id = serv.room_id
                 self.serv_queue.remove(serv)
                 self.NewWaiting(room_id, speed)
+                gDict["rooms"].get_room(room_id).set_state("H")
                 break
     # 释放服务不添加到等待队列（需在数据库中记录一条off操作）
     def TerminateService(self, service_id):
@@ -65,6 +101,7 @@ class Schedule(object):
         for serv in self.serv_queue:
             if serv.service_id == service_id:
                 self.serv_queue.remove(serv)
+                gDict["rooms"].get_room(serv.room_id).set_state("F")
                 break
     # 从等待队列中删除(需在数据库中记录一条off操作)
     def TerminateWaiting(self, room_id):
@@ -72,6 +109,7 @@ class Schedule(object):
         wait_item = self.SearchWaiting(room_id)
         if wait_item != None:
             self.wait_queue.remove(wait_item)
+            gDict["rooms"].get_room(room_id).set_state("R")
 
     ## 查找操作
     # 根据服务号查风速
@@ -110,7 +148,12 @@ class Schedule(object):
         least_priorty_list.sort(key = operator.attrgetter('start_time'))
         return least_priorty_list[0].service_id
 
-
+    # 查找等待队列中等待最久的目标
+    def GetLongestWait(self):
+        if len(self.wait_queue) == 0:
+            return None
+        self.wait_queue.sort(key = operator.attrgetter('start_time'))
+        return self.wait_queue[0]
 
 
 
@@ -143,10 +186,8 @@ class Schedule(object):
                     self.TerminateWaiting(room_id)
                     return {"state":"OK"}
                 elif req_type == 'tmp':
-                    self.unsolved_tmp_request.append({
-                        "room_id": room_id,
-                        "trg": trg
-                    })
+                    gDict["rooms"].get_room(room_id).set_trgTmp(trg)
+                    return {"state":"OK"}
                 elif req_type == 'spd':
                     req.SetSpeed(trg)
                     ## 取代优先级最低的当前服务
@@ -157,7 +198,7 @@ class Schedule(object):
                         return {"state":"OK"}
                     else:
                         return {"state":"Waiting"}
-        ## 当前房间未在服务，且有空余服务对象资源
+        ## 当前房间未在服务,未在等待，且有空余服务对象资源
         if len(self.serv_queue) < self.max_service:
             if req_type == 'on':
                 ### 暂定开机默认风速为M，若策略有改变，请更改此处！！！
@@ -188,12 +229,12 @@ class Schedule(object):
             elif req_type == 'spd':
                 return {"state":"Invalid"}
 
-    # 轮转调度
-    def RoundRobin(self):
-        pass
+
 
     def __init__(self):
         print("调度对象已创建")
         self.CreateServQueue()
         self.CreateWaitQueue()
+        self.scheduler = APScheduler()
+
 

@@ -15,4 +15,9 @@ class ServicePool(object):
             self.CreateServ(i)
     def SetState(self,state):
         self.state = state
-
+    def GetService(self, room_id):
+        for serv in self.serv_list:
+            if serv.room_id == room_id:
+                return serv
+        return None
+        
