@@ -15,7 +15,13 @@ class Service(object):
         gDict["rooms"].get_room(self.room_id).set_trgTmp(temp)
     def ShowBill(self):
         pass
+    # 生成详单记录数组
     def ShowDetailBill(self):
+        from Hotel_Air_Conditioning_System.dao import iRecordDAO
+        irdao=iRecordDAO.iRecordDAO()
+        ret=irdao.GetRecord()
+        num=len(ret)
+
         pass
     def ShowReport(self):
         pass
