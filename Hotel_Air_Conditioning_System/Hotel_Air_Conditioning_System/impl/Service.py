@@ -21,7 +21,7 @@ class Service(object):
     # 生成rdrList并计算总价
     def ShowDetailBill(self,room_id):
         iidao = iInvoiceDAO.iInvoiceDAO()
-        invoice_id = iidao.GetInvoiceId(room_id)    # 获取invoice_id
+        invoice_id = iidao.GetLastInvoiceId(room_id)    # 获取invoice_id
         date_in = iidao.GetDateIn(room_id)          # 获取date_in
         irdao = iRecordDAO.iRecordDAO()
         ret = irdao.GetRecord(invoice_id)   # 获取详单记录
