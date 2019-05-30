@@ -12,7 +12,15 @@ from Hotel_Air_Conditioning_System import dao
 import json
 from Hotel_Air_Conditioning_System.impl import gDict
 from flask_apscheduler import APScheduler
-from flask import current_app
+from flask import current_app,Response
+
+def cors_resp(resp_text):
+    resp = Response(resp_text)
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+    resp.headers["Access-Control-Allow-Headers"] =  "X-PINGOTHER, Content-Type"
+    resp.headers["Access-Control-Max-Age"] = "86400"
+    return resp
 
 ##兼容QT转发模块
 @app.route('/', methods=['GET','POST'])
@@ -20,8 +28,10 @@ def re_route():
     if request.method == 'GET':
         return redirect('./frontend/home.html')
     else:
-        params = request.get_json()
-        print(params)
+        data = request.data
+        params = json.loads(data)
+        # params = request.get_json()
+        print(data)
         if params.get("actorType", 0) == 0:
             return "actorType not found", 400
         if params.get("requestType", 0) == 0:
@@ -84,12 +94,13 @@ def manager_page():
 @app.route('/api/adm/on', methods=['POST'])
 def powerOn():
     suc = StartUPController.StartUPController()
-    return suc.PowerOn()
+    return cors_resp(suc.PowerOn())
 
 # 设置运行参数
 @app.route('/api/adm/para', methods=['POST'])
 def setPara():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     mode = params.get("mode", 0)
     temp_highLimit = params.get("tmpH", 0)
     temp_lowLimit = params.get("tmpL", 0)
@@ -100,23 +111,24 @@ def setPara():
     if mode == 0 | temp_highLimit ==0 | temp_lowLimit ==0 | default_targetTemp == 0 | feeRate_H == 0 | feeRate_L == 0 | feeRate_M ==0:
         return "wrong attr", 400
     suc = StartUPController.StartUPController()
-    return suc.SetPara(mode, temp_highLimit, temp_lowLimit, default_targetTemp, feeRate_H,feeRate_M,feeRate_L)
+    return cors_resp(suc.SetPara(mode, temp_highLimit, temp_lowLimit, default_targetTemp, feeRate_H,feeRate_M,feeRate_L))
 
 # 启动
 @app.route('/api/adm/start', methods=['POST'])
 def StartUp():
     suc = StartUPController.StartUPController()
-    return suc.StartUp()
+    return cors_resp(suc.StartUp())
 
 # 查看房间状态
 @app.route('/api/adm/check', methods=['POST'])
 def CheckRoomState():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     list_roomid = params.get("idList", 0)
     if list_roomid == 0:
         return "wrong attr", 400
     csc = CheckStateController.CheckStateController()
-    return csc.CheckRoomState(list_roomid)
+    return cors_resp(csc.CheckRoomState(list_roomid))
 
 
 
@@ -125,38 +137,42 @@ def CheckRoomState():
 # 显示数据刷新
 @app.route('/api/cos/ref', methods=["POST"])
 def refresh():
-    params = request.get_json()
+    data = request.data         
+    params = json.loads(data)
     if params.get("roomID", 0) == 0:
         return "roomID not found", 400
     roomID = params["roomID"]
     oc = OperateController.OperateController()
-    return oc.Refresh(roomID)
+    return cors_resp(oc.Refresh(roomID))
     
 
 # 开空调
 @app.route('/api/cos/on', methods=['POST'])
 def RequestOn():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     room_id = params.get("roomID",0)
     if room_id == 0:
         return "roomID not found", 400
     oc = OperateController.OperateController()
-    return oc.RequestOn(room_id)
+    return cors_resp(oc.RequestOn(room_id))
 
 # 关空调
 @app.route('/api/cos/off', methods=['POST'])
 def RequestOff():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     room_id = params.get("roomID",0)
     if room_id == 0:
         return "roomID not found", 400
     oc = OperateController.OperateController()
-    return oc.RequestOff(room_id)
+    return cors_resp(oc.RequestOff(room_id))
 
 # 调目标温度
 @app.route('/api/cos/tmp', methods=['POST'])
 def ChangeTargetTemp():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     room_id = params.get("roomID",0)
     target_temp = params.get("trg",0)
     if room_id == 0:
@@ -164,12 +180,13 @@ def ChangeTargetTemp():
     if target_temp == 0:
         return "Invalid Request", 400
     oc = OperateController.OperateController()
-    return oc.ChangeTargetTemp(room_id, target_temp)
+    return cors_resp(oc.ChangeTargetTemp(room_id, target_temp))
 
 # 调风速
 @app.route('/api/cos/spd', methods=['POST'])
 def ChangeFanSpeed():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     room_id = params.get("roomID",0)
     target_spd = params.get("trg",0)
     if room_id == 0:
@@ -177,7 +194,7 @@ def ChangeFanSpeed():
     if target_spd == 0:
         return "Invalid Request", 400
     oc = OperateController.OperateController()
-    return oc.ChangeFanSpeed(room_id, target_spd)
+    return cors_resp(oc.ChangeFanSpeed(room_id, target_spd))
 
 
 
@@ -186,7 +203,8 @@ def ChangeFanSpeed():
 # 获取账单
 @app.route('/api/inf/inv', methods=['POST'])
 def create_invoice():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     if params.get("roomID", 0) == 0:
         return "roomID not found", 400
     roomID = params["roomID"]
@@ -199,7 +217,8 @@ def create_invoice():
 # 获取详单
 @app.route('/api/inf/rdr', methods=['POST'])
 def create_rdr():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     if params.get("roomID", 0) == 0:
         return "roomID not found", 400
     roomID = params["roomID"]
@@ -214,7 +233,8 @@ def create_rdr():
 # 获取报表
 @app.route('/api/mng/rep', methods=['POST'])
 def QueryReport():
-    params = request.get_json()
+    data = request.data
+    params = json.loads(data)
     idList = params.get("idList", 0)
     rep_type = params.get("type", 0)
     until = params.get("until", 0)
@@ -232,7 +252,7 @@ def QueryReport():
 def invoice(id):
     from Hotel_Air_Conditioning_System.dao.iInvoiceDAO import iInvoiceDAO
     idao = iInvoiceDAO()
-    return str(idao.GetTotal(203, "2019-05-24", "2019-05-25"))
+    return cors_resp(str(idao.GetTotal(203, "2019-05-24", "2019-05-25")))
 
 # 查看系统当前状态
 @app.route('/api/state')
@@ -281,9 +301,9 @@ def show_state():
         res["wait_pool"] = 0
     res["settings"] = gDict.get("settings", 0)
     print(res)
-    return json.dumps(res)
+    return cors_resp(json.dumps(res))
 
 
 @app.route('/api/job')
 def joblist():
-    return str(current_app.apscheduler.get_jobs())
+    return cors_resp(str(current_app.apscheduler.get_jobs()))

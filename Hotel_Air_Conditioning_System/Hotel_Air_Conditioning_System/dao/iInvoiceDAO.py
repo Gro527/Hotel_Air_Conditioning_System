@@ -6,10 +6,10 @@ class iInvoiceDAO(object):
        ret = session.query(iInvoice).filter_by(room_id = room_id).all()
        return ret[0].total
    #...???
-   def GetDateIn(self,room_id):
-       ret=session.query(iInvoice).filter_by(room_id=room_id).all()
-       ret=ret.reverse()
-       return ret[0].date_in
-   
-   def GetInvoiceId(self,room_id):
-       pass
+    def GetDateIn(self,room_id):
+        ret=session.query(iInvoice).filter_by(room_id=room_id).all()
+        ret=ret.reverse()
+        return ret[0].date_in
+    def GetLastInvoiceId(self, room_id):
+        last_invoice = session.query(iInvoice).filter_by(room_id = room_id).order_by(iInvoice.date_in.desc()).first()
+        return last_invoice.id
