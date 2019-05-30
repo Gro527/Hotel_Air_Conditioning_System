@@ -191,6 +191,10 @@ def create_invoice():
         return "roomID not found", 400
     roomID = params["roomID"]
     ## .....
+    dateOut = datetime.now()
+    
+    cIc = CreateInvoiceController.CreateInvoiceController()
+    Invoice = cIc.CreateInvoice(room_id,dateOut)
 
 # 获取详单
 @app.route('/api/inf/rdr', methods=['POST'])
@@ -200,7 +204,9 @@ def create_rdr():
         return "roomID not found", 400
     roomID = params["roomID"]
     ## .....
-
+    dateOut=datetime.now()  
+    cRDRc = CreateRDRController.CreateRDRController()
+    RDR = cRDRc.CreateRDR(room_id,dateOut)
 
 
 
