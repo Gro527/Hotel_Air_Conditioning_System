@@ -1,7 +1,7 @@
 from Hotel_Air_Conditioning_System.impl import gDict
 from Hotel_Air_Conditioning_System.dao import iInvoiceDAO
 from Hotel_Air_Conditioning_System.dao import iRecordDAO
-from datetime import datetime
+from datetime import datetime,date
 class Service(object):
     def __init__(self, service_id):
         self.service_id = service_id
@@ -22,15 +22,27 @@ class Service(object):
     def ShowDetailBill(self,room_id):
         iidao = iInvoiceDAO.iInvoiceDAO()
         invoice_id = iidao.GetLastInvoiceId(room_id)    # 获取invoice_id
-        date_in = iidao.GetDateIn(room_id)          # 获取date_in
+        invoice = iidao.GetInvoiceById(invoice_id)
+        date_out =  invoice.date_out
+        date_in = invoice.date_in          # 获取date_in
         irdao = iRecordDAO.iRecordDAO()
         ret = irdao.GetRecord(invoice_id)   # 获取详单记录
+        if len(ret) == 0:
+            return [],0,date_in
+        # 若详单最后一条记录不为off，则此时off
+        if ret[-1].action_type != "off":
+            gDict["schedule"].OnRequest(room_id, {"req_type":"off"})
+        # 若无date_out，写dateout
+        if date_out == None:
+            date_out = date.today()
+            iidao.SetDateOut(invoice_id, date_out)
         rdrlist = []              # 初始化rdrlist
         total_price = 0           # 初始化总价
         num = 0
         while num < len(ret):
             # 将该条记录添加进rdrList
-            rdrlist.append({'time':ret[num].start_time,'rate':ret[num].fee_rate,'spd':ret[num].speed})
+            ## 格式待改
+            rdrlist.append({'start':str(ret[num].start_time),'rate':ret[num].fee_rate,'spd':ret[num].speed})
             # 价钱累积
             if(num == 0):   # 第一条记录
                 time_s = ret[num].start_time
@@ -42,9 +54,8 @@ class Service(object):
                 current_f_r = ret[num].fee_rate
             num = num + 1
 
-        # .....total_price写入iInvoiceDAO
-
-        return rdrlist,total_price,date_in
+        iidao.SetTotal(invoice_id, total_price)
+        return rdrlist,total_price,date_in,date_out, invoice_id
 
     def ShowReport(self):
         pass
@@ -68,7 +79,6 @@ class Service(object):
     # 更改风速(需在数据库中记录)
     def SpdChange(self, speed):
         self.speed = speed
-        #### 数据库记录
     
     # 释放服务
     def ReleaseRoom(self):

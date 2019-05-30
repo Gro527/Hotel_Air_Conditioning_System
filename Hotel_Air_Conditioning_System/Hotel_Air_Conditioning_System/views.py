@@ -31,7 +31,7 @@ def re_route():
         data = request.data
         params = json.loads(data)
         # params = request.get_json()
-        print(data)
+        print(params)
         if params.get("actorType", 0) == 0:
             return "actorType not found", 400
         if params.get("requestType", 0) == 0:
@@ -208,11 +208,10 @@ def create_invoice():
     if params.get("roomID", 0) == 0:
         return "roomID not found", 400
     roomID = params["roomID"]
-    ## .....
-    dateOut = datetime.now()
     
     cIc = CreateInvoiceController.CreateInvoiceController()
-    Invoice = cIc.CreateInvoice(room_id,dateOut)
+    Invoice = cIc.CreateInvoice(roomID)
+    return Invoice
 
 # 获取详单
 @app.route('/api/inf/rdr', methods=['POST'])
@@ -225,7 +224,8 @@ def create_rdr():
     ## .....
     dateOut=datetime.now()  
     cRDRc = CreateRDRController.CreateRDRController()
-    RDR = cRDRc.CreateRDR(room_id,dateOut)
+    RDR = cRDRc.CreateRDR(roomID)
+    return RDR
 
 
 
@@ -248,11 +248,11 @@ def QueryReport():
 
 
 ## 测试路由
-@app.route('/api/inf/invoice/<id>')
-def invoice(id):
-    from Hotel_Air_Conditioning_System.dao.iInvoiceDAO import iInvoiceDAO
-    idao = iInvoiceDAO()
-    return cors_resp(str(idao.GetTotal(203, "2019-05-24", "2019-05-25")))
+# @app.route('/api/inf/invoice/<id>')
+# def invoice(id):
+#     from Hotel_Air_Conditioning_System.dao.iInvoiceDAO import iInvoiceDAO
+#     idao = iInvoiceDAO()
+#     return cors_resp(str(idao.GetTotal(203, "2019-05-24", "2019-05-25")))
 
 # 查看系统当前状态
 @app.route('/api/state')
