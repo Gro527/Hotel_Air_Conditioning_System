@@ -170,13 +170,16 @@ class Schedule(object):
                     return {"state":"OK"}
                 elif req_type == 'off':
                     self.TerminateService(serv.service_id)
+                    iRecordDAO.AddRecord(room_id, "0", "off")
                     return {"state":"OK"}
                 elif req_type == 'tmp':
                     gDict["serv_pool"].serv_list[serv.service_id].SetTemp(trg)
+                    iRecordDAO.AddRecord(room_id, serv.speed, "change_temp")
                     return {"state":"OK"}
                 elif req_type == 'spd':
                     gDict["serv_pool"].serv_list[serv.service_id].SpdChange(trg)
                     serv.SetSpeed(trg)
+                    iRecordDAO.AddRecord(room_id, serv.speed, "change_speed")
                     return {"state":"OK"}
         ## 当前房间未在服务，且在等待队列中    
         for req in self.wait_queue:
@@ -185,6 +188,7 @@ class Schedule(object):
                     return {"state":"Waiting"}
                 elif req_type == 'off':
                     self.TerminateWaiting(room_id)
+                    iRecordDAO.AddRecord(room_id, 0, "off")
                     return {"state":"OK"}
                 elif req_type == 'tmp':
                     gDict["rooms"].get_room(room_id).set_trgTmp(trg)
