@@ -1,7 +1,8 @@
 from Hotel_Air_Conditioning_System.dao import mapper
-from Hotel_Air_Conditioning_System.dao.mapper import iInvoice,Session
+from Hotel_Air_Conditioning_System.dao.mapper import *
 
 class iRecordDAO(object):
-    sess = Session()
+    def GetRecord(self,room_id,invoice_id)
+        pass
 
 

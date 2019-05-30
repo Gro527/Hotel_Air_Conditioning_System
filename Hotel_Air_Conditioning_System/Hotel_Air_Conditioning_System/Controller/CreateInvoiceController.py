@@ -8,5 +8,8 @@ class CreateInvoiceController(object):
         invoice = Invoice.Invoice(room_id, date_in, date_out)
         idao = iInvoiceDAO.iInvoiceDAO()
         total = idao.GetTotal(room_id,date_in,date_out)
+        # ???
+        return json.dumps({'dateIn':date_in,'dateOut':date_out,'total':total})
+
 
 cic = CreateInvoiceController()
