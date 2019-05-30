@@ -7,6 +7,7 @@ from flask_apscheduler import APScheduler
 from flask import current_app
 from datetime import datetime,timedelta
 from Hotel_Air_Conditioning_System import app
+from Hotel_Air_Conditioning_System.dao.iRecordDAO import iRecordDAO
 
 # 时间片到，执行调度
 def Timeout(room_id):
