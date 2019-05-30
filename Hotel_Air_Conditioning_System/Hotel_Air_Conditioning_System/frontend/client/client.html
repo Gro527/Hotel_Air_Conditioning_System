@@ -2,26 +2,131 @@
 
 <head>
     <meta charset="UTF-8" />
-    <script src="../resource/handsontable/dist/handsontable.full.js"></script>
+    <script src="../resource/handsontable/dist/handsontable.full.min.js"></script>
+    <link href="../resource/handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">  
     <script src="../resource/handsontable/dist/languages/zh-CN.js"></script>
-    <link href="../resource/handsontable/dist/handsontable.full.css" rel="stylesheet" media="screen">
 </head>
 
 <body>
-    <p>状态：<lable id="status"></lable>
+    <p>状态：<label id="statusLabel"></label>
     </p>
-    <p>当前温度：<lable id="curTmp"></lable>
+    <p>当前温度：<label id="curTmpLabel"></label>
     </p>
-    <p>当前风速：<lable id="curSpeed"></lable>
-    </p>
-    <p>目标温度<input id="trgTmp" />
+    <p>目标温度：<input id="trgTmpLabel" />
         <button type="button" onclick="onTmpSubmit()">确定</button>
     </p>
-    <p>目标风速
-        <input id="trgSpeed" />
+    <p>风速：
+        <label id="spdLable"></label>
+        <input id="spdInput" />
         <button type="button" onclick="onSpeedSubmit()">确定</button>
     </p>
-    <button id="switch" type="button" onmousedown="onSwitch(this)">开启</button>
+    <p>总消费：<label id="totalLable"></label></p>
+
+    <button id="switchButton" type="button" onclick="onSwitch()">开启</button>
 </body>
+<script>
+    var statusLabel=document.getElementById("statusLabel");
+    var curTmpLabel=document.getElementById("curTmpLabel");
+    var spdLabel=document.getElementById("spdLabel");
+    var spdInput =document.getElementById("spdInput");
+    var trgTmpLabel=document.getElementById("trgTmpLabel");
+    var totalLabel=document.getElementById("totalLabel");
+    var switchButton=document.getElementById("switchButton");
+
+
+    var refreshRequest = new XMLHttpRequest();
+    refreshRequest.onreadystatechange = function () {
+        if (refreshRequest.readyState == 4) {
+            if (refreshRequest.status == 200) {
+                data = JSON.parse(refreshRequest.responseText);
+                switch(data.state){
+                    case "R":statusLabel.textContent="运行";break;
+                    case "W":statusLabel.textContent="等待";break;
+                    case "F":statusLabel.textContent="关机";break;
+                    case "H":statusLabel.textContent="挂起";break;
+                }
+                curTmpLabel.textContent=data.curTmp;
+                switch(data.spd){
+                    case "L":spdLabel.textContent="低";
+                    case "M":spdLabel.textContent="中";
+                    case "H":spdLabel.textContent="高";
+                }
+                trgTmpLabel.textContent=data.trgTmp;
+                totalLabel=data.total;
+            }
+            else {
+                console.error("refresh status error:" + refreshRequest.status);
+                alert("刷新失败");
+            }
+        }
+    }
+    refreshRequest.ontimeout = function () {
+        alert("刷新响应超时，请联系管理员");
+        console.error("刷新超时");
+    }
+    var refreshPara= new Object();
+    refreshPara.actorType="cos";
+    refreshPara.requestType="ref";
+    refreshPara.roomID="1001";
+    var refreshStr=JSON.stringify(refreshPara)
+    function refresh() {
+        refreshRequest.open("POST", "../../", true);
+        refreshRequest.setRequestHeader("Access-Control-Allow-Origin", "*");
+        refreshRequest.timeout = 3000;
+        refreshRequest.send(refreshStr);
+    }
+    var refreshInterval = setInterval("refresh()", 10000);
+
+    var turnOnRequest=new XMLHttpRequest();
+    turnOnRequest.onreadystatechange=function(){
+        if (turnOnRequest.readyState == 4) {
+            if (turnOnRequest.status != 200) {
+                console.error("turnOn status error:" + turnOnRequest.status);
+                alert("开机请求失败");
+            }
+        }
+    }
+    turnOnRequest.ontimeout = function () {
+        alert("开机响应超时，请联系管理员");
+        console.error("开机超时");
+    }
+    var turnOnPara= new Object();
+    turnOnPara.actorType="cos";
+    turnOnPara.requestType="on";
+    turnOnPara.roomID="1001";
+    var turnOnStr=JSON.stringify(turnOnPara);
+    var turnOffRequest=new XMLHttpRequest();
+    turnOffRequest.onreadystatechange=function(){
+        if (turnOffRequest.readyState == 4) {
+            if(turnOffRequest.status){
+
+            }
+            else {
+                console.error("turnOff status error:" + turnOnRequest.status);
+                alert("关机请求失败");
+            }
+        }
+    }
+    turnOffRequest.ontimeout = function () {
+        alert("关机响应超时，请联系管理员");
+        console.error("关机超时");
+    }
+    var turnOffPara= new Object();
+    turnOffPara.actorType="cos";
+    turnOffPara.requestType="off";
+    turnOffPara.roomID="1001";
+    var turnOffStr=JSON.stringify(turnOffPara);
+
+    function onSwitch(){
+        turnOnRequest.open("POST","../../",true);
+        turnOnRequest.timeout=3000;
+        turnOnRequest.send(turnOnStr);
+    }
+
+
+
+
+</script>
+
 
 </html>
