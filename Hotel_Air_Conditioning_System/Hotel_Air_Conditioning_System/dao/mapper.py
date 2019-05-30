@@ -34,8 +34,10 @@ class iRecord(base):
                primary_key = True)
     invoice_id = Column(Integer, ForeignKey("invoice.id"))
     start_time = Column(DateTime)
-    action_type = Column(Enum("request_on", "start", "change_temp", "change_speed", "off", name="action_type"))
-    price = Column(Float)
+    trg_tmp = Column(Float)
+    speed = Column(Enum("H","M","L","0"))
+    action_type = Column(Enum("on", "change_temp", "change_speed", "off", name="action_type"))
+    fee_rate = Column(Float)
     
 
 
