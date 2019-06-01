@@ -2,7 +2,6 @@
 from Hotel_Air_Conditioning_System.impl.CheckStateHandler import CheckStateHandler
 from Hotel_Air_Conditioning_System.impl import gDict
 import json
-##未完成
 class CheckStateController(object):
     def CheckRoomState(self):
         csh = CheckStateHandler()

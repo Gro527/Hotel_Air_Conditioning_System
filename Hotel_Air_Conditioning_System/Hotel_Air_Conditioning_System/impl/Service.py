@@ -51,10 +51,14 @@ class Service(object):
             return [],0,date_in
         # 若详单最后一条记录不为off，则此时off
         if ret[-1].action_type != "off":
+            print("111")
             gDict["schedule"].OnRequest(room_id, {"req_type":"off"})
+            if ret[-1].action_type != "off":
+                print("222")
+                irdao.AddRecord(room_id, "0",  "off")
         # 若无date_out，写dateout
         if date_out == None:
-            date_out = date.today()
+            date_out = datetime.now().replace(microsecond=0)
             iidao.SetDateOut(invoice_id, date_out)
         rdrlist = []              # 初始化rdrlist
         total_price = 0           # 初始化总价
@@ -93,10 +97,9 @@ class Service(object):
         else:
             self.trg_tmp = room.trg_tmp
         self.speed = speed
-        #### 数据库记录
         
 
-    # 更改风速(需在数据库中记录)
+    # 更改风速
     def SpdChange(self, speed):
         self.speed = speed
     
@@ -119,6 +122,7 @@ class Service(object):
                 curtmp = room.tmp_dec((datetime.now() - room.last_op_time).seconds * 0.01)
                 # 当温度低于目标温度时，暂停服务进入等待序列
                 if curtmp < self.trg_tmp:
+                    print("hahahaha")
                     room.set_state("H")
                     iRecordDAO.iRecordDAO().AddRecord(self.room_id, self.speed, "hold")
                     waiting = sche.GetLongestWait()

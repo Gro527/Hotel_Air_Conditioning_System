@@ -1,508 +1,504 @@
 <!DOCTYPE html>
 <html>
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="renderer" content="webkit">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		<title>管理员菜单</title>
-		<link rel="stylesheet" type="text/css" href="../static/css/layui.css" media = "all"/>
-		<link rel="stylesheet" type="text/css" href="../static/css/admin.css" />
-	</head>
+<head>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport"
+		content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>管理员菜单</title>
+	<link rel="stylesheet" type="text/css" href="../static/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" type="text/css" href="../static/css/admin.css" />
+	<script src="../static/handsontable/dist/handsontable.full.min.js"></script>
+	<link href="../static/handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+	<script src="../static/handsontable/dist/languages/zh-CN.js"></script>
+</head>
 
-	<body>
-		<div class="layui-tab page-content-wrap" lay-filter="demo" >
-			<ul class="layui-tab-title">
-				<li lay-id="11" >开机</li>
-				<li lay-id='22'>设置参数</li>
-				<li lay-id="33">启动</li>
-				<li lay-id="44">查看房间信息</li>
-			</ul>
-			<div class="layui-tab-content" >
-				<!--开机-->
-				<div class="layui-tab-item " >
-					<div class="wrap-container welcome-container">
-						<div class="row">
-							<div class="welcome-left-container col-lg-9">
-								<div class="data-show">
-									<ul class="clearfix">
-										<li class="col-sm-12 col-md-4 col-xs-12">
-											<a href="javascript:;" class="clearfix">
-												<div class="icon-bg bg-org f-l">
-													<span class="iconfont">&#xe606;</span>
-												</div>
-												<div class="right-text-con">
-													<p class="name">服务人数</p>
-													<p><span class="color-org">2596407</span>数据<span class="iconfont">&#xe628;</span></p>
-												</div>
-											</a>
-										</li>
-										<li class="col-sm-12 col-md-4 col-xs-12">
-											<a href="javascript:;" class="clearfix">
-												<div class="icon-bg bg-blue f-l">
-													<span class="iconfont">&#xe602;</span>
-												</div>
-												<div class="right-text-con">
-													<p class="name">覆盖国家</p>
-													<p><span class="color-blue">14</span>数据<span class="iconfont">&#xe628;</span></p>
-												</div>
-											</a>
-										</li>
-										<li class="col-sm-12 col-md-4 col-xs-12">
-											<a href="javascript:;" class="clearfix">
-												<div class="icon-bg bg-green f-l">
-													<span class="iconfont">&#xe605;</span>
-												</div>
-												<div class="right-text-con">
-													<p class="name">系统升级</p>
-													<p><span class="color-green">47</span>数据<span class="iconfont">&#xe60f;</span></p>
-												</div>
-											</a>
-										</li>
-									</ul>
+<body>
+	<div class="layui-tab page-content-wrap" lay-filter="demo">
+		<ul class="layui-tab-title">
+			<li class="layui-this" lay-id="11">开机</li>
+			<li lay-id='22'>设置参数</li>
+			<li lay-id="33">启动</li>
+			<li lay-id="44">查看房间信息</li>
+		</ul>
+		<div class="layui-tab-content">
+			<!--开机-->
+			<div class="layui-tab-item layui-show">
+				<div class="wrap-container welcome-container">
+					<div class="row">
+						<div class="welcome-left-container col-lg-9">
+							<div class="data-show">
+								<ul class="clearfix">
+									<li class="col-sm-12 col-md-4 col-xs-12">
+										<a href="javascript:;" class="clearfix">
+											<div class="icon-bg bg-org f-l">
+												<span class="iconfont">&#xe606;</span>
+											</div>
+											<div class="right-text-con">
+												<p class="name">服务人数</p>
+												<p><span class="color-org">2596407</span>数据<span
+														class="iconfont">&#xe628;</span></p>
+											</div>
+										</a>
+									</li>
+									<li class="col-sm-12 col-md-4 col-xs-12">
+										<a href="javascript:;" class="clearfix">
+											<div class="icon-bg bg-blue f-l">
+												<span class="iconfont">&#xe602;</span>
+											</div>
+											<div class="right-text-con">
+												<p class="name">覆盖国家</p>
+												<p><span class="color-blue">14</span>数据<span
+														class="iconfont">&#xe628;</span></p>
+											</div>
+										</a>
+									</li>
+									<li class="col-sm-12 col-md-4 col-xs-12">
+										<a href="javascript:;" class="clearfix">
+											<div class="icon-bg bg-green f-l">
+												<span class="iconfont">&#xe605;</span>
+											</div>
+											<div class="right-text-con">
+												<p class="name">系统升级</p>
+												<p><span class="color-green">47</span>数据<span
+														class="iconfont">&#xe60f;</span></p>
+											</div>
+										</a>
+									</li>
+								</ul>
+							</div>
+							<!--服务器信息-->
+							<div class="server-panel panel panel-default">
+								<div class="panel-header">服务器信息</div>
+								<div class="panel-body clearfix">
+									<div class="col-md-2">
+										<p class="title">服务器环境</p>
+										<span class="info">Apache/2.4.4 (Win32) PHP/5.4.16</span>
+									</div>
+									<div class="col-md-2">
+										<p class="title">服务器IP地址</p>
+										<span class="info">127.0.0.1 </span>
+									</div>
+									<div class="col-md-2">
+										<p class="title">服务器域名</p>
+										<span class="info">localhost </span>
+									</div>
+									<div class="col-md-2">
+										<p class="title"> PHP版本</p>
+										<span class="info">5.4.16</span>
+									</div>
+									<div class="col-md-2">
+										<p class="title">数据库信息</p>
+										<span class="info">5.6.12-log </span>
+									</div>
+									<div class="col-md-2">
+										<p class="title">服务器当前时间</p>
+										<span class="info">2016-06-22 11:37:35</span>
+									</div>
 								</div>
-								<!--服务器信息-->
-								<div class="server-panel panel panel-default">
-									<div class="panel-header">服务器信息</div>
-									<div class="panel-body clearfix">
-										<div class="col-md-2">
-											<p class="title">服务器环境</p>
-											<span class="info">Apache/2.4.4 (Win32) PHP/5.4.16</span>
-										</div>
-										<div class="col-md-2">
-											<p class="title">服务器IP地址</p>
-											<span class="info">127.0.0.1   </span>
-										</div>
-										<div class="col-md-2">
-											<p class="title">服务器域名</p>
-											<span class="info">localhost </span>
-										</div>
-										<div class="col-md-2">
-											<p class="title"> PHP版本</p>
-											<span class="info">5.4.16</span>
-										</div>
-										<div class="col-md-2">
-											<p class="title">数据库信息</p>
-											<span class="info">5.6.12-log </span>
-										</div>
-										<div class="col-md-2">
-											<p class="title">服务器当前时间</p>
-											<span class="info">2016-06-22 11:37:35</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-input-block">
+						<button class="layui-btn layui-btn-normal" onclick="onPowerOnRequest()">开机</button>
+					</div>
+				</div>
+			</div>
+			<!--设置参数-->
+			<div class="layui-tab-item">
+				<div class="layui-form" style="width: 90%;padding-top: 20px;">
+					<div style="display:none" id="setParaDiv">
+						<div class="layui-form-item">
+							<label class="layui-form-label">模式：</label>
+							<div class="layui-input-block">
+								<input title="制冷" id="CRadio" type="radio" name="modeRadio" value="C"
+									onchange="onModeChange(this.value)" checked>
+								<input title="制热" id="WRadio" type="radio" name="modeRadio" value="W"
+									onchange="onModeChange(this.value)">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">最高温度：</label>
+							<div class="layui-input-block">
+								<input id="tmpHInput" type="text" name="title" placeholder="请输入最高温度" autocomplete="off"
+									class="layui-input" value="" id="tmpHInput">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">最低温度：</label>
+							<div class="layui-input-block">
+								<input id="tmpLInput" type="text" name="keyword" placeholder="请输入最低温度"
+									autocomplete="off" class="layui-input" value="" id="tmpLInput">
+							</div>
+						</div>
+						<div class="layui-form-item layui-form-text">
+							<label class="layui-form-label">默认温度：</label>
+							<div class="layui-input-block">
+								<input id="tmpDInput" type="text" name="keyword" placeholder="请输入默认温度"
+									autocomplete="off" class="layui-input" value="" id="tmpDInput">
+							</div>
+						</div>
+						<div class="layui-form-item layui-form-text">
+							<label class="layui-form-label">高速费率：</label>
+							<div class="layui-input-block">
+								<input id="rateHInput" type="text" name="keyword" placeholder="请输入默认温度"
+									autocomplete="off" class="layui-input" value="" id="tmpDInput">
+							</div>
+						</div>
+						<div class="layui-form-item layui-form-text">
+							<label class="layui-form-label">中速费率：</label>
+							<div class="layui-input-block">
+								<input id="rateMInput" type="text" name="keyword" placeholder="请输入默认温度"
+									autocomplete="off" class="layui-input" value="" id="tmpDInput">
+							</div>
+						</div>
+						<div class="layui-form-item layui-form-text">
+							<label class="layui-form-label">低速费率：</label>
+							<div class="layui-input-block">
+								<input id="rateLInput" type="text" name="keyword" placeholder="请输入默认温度"
+									autocomplete="off" class="layui-input" value="" id="tmpDInput">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-normal" onclick="onSetParaRequest()">确认</button>
+							</div>
+						</div>
+					</div>
+					<div id="setParaWarnDiv">
+						<div class="wrap-container welcome-container">
+							<div class="row">
+								<div class="welcome-left-container col-lg-9">
+									<!--警告-->
+									<div class="server-panel panel panel-default">
+										<div class="panel-header">警告</div>
+										<div class="panel-body clearfix">
+											<p class="title">请您先开机，再进行其余操作！</p>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<form class="layui-form" style="width: 90%;padding-top: 20px;">
+				</div>
+			</div>
+			<!--启动-->
+			<div class="layui-tab-item">
+				<div class="layui-form" style="width: 90%;padding-top: 20px;">
+					<div style="display:none" id="startDiv">
+						<div class="wrap-container welcome-container">
+							<div class="row">
+								<div class="welcome-left-container col-lg-9">
+									<!--启动说明-->
+									<div class="server-panel panel panel-default">
+										<div class="panel-header">启动说明</div>
+										<div class="panel-body clearfix">
+											<p class="title">启动后，您所有已经更改过的设置都会对系统运行产生影响，请在启动前仔细检查已有的设置是否正确！确认无误后，再进行启动！
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 						<div class="layui-form-item">
-							<pre>						   <button class="layui-btn layui-btn-normal" data-type="tabChange" id="controlButton" type="button" onclick="onStartClick1()">开机</button></pre>
-						</div>
-					</form>
-				</div>
-				<!--设置参数-->
-				<div class="layui-tab-item">
-					<form class="layui-form" style="width: 90%;padding-top: 20px;">
-						<div style="display:none" id="div1"> 
-							<div class="layui-form-item">
-								<label class="layui-form-label">模式：</label>
-								<div class="layui-input-block">
-									<input title="制冷" id="CRadio" type="radio" name="modeRadio" value="C" onchange="onModeChange(this.value)" checked="">
-									<input title="制热" id="WRadio" type="radio" name="modeRadio" value="W" onchange="onModeChange(this.value)">
-								</div>
-							</div>
-							<div class="layui-form-item">
-								<label class="layui-form-label">最高温度：</label>
-								<div class="layui-input-block">
-									<input type="text" name="title" placeholder="请输入最高温度" autocomplete="off" class="layui-input" value="" id="tmpHInput">
-								</div>
-							</div>
-							<div class="layui-form-item">
-								<label class="layui-form-label">最低温度：</label>
-								<div class="layui-input-block">
-									<input type="text" name="keyword" placeholder="请输入最低温度" autocomplete="off" class="layui-input" value="" id="tmpLInput">
-								</div>
-							</div>
-							<div class="layui-form-item layui-form-text">
-								<label class="layui-form-label">默认温度：</label>
-								<div class="layui-input-block">
-									<input type="text" name="keyword" placeholder="请输入默认温度" autocomplete="off" class="layui-input" value="" id="tmpDInput">
-								</div>
-							</div>
-							<div class="layui-form-item">
-								<div class="layui-input-block">
-									<button class="layui-btn layui-btn-normal" onclick="onStartClick2()" >设置参数</button>
-								</div>
-							</div>
-						</div> 
-						<div id="div4"> 
-							<div class="wrap-container welcome-container">
-								<div class="row">
-									<div class="welcome-left-container col-lg-9">
-										<!--警告-->
-										<div class="server-panel panel panel-default">
-											<div class="panel-header">警告</div>
-											<div class="panel-body clearfix">
-													<p class="title">请您先完成前几项操作，再进行其余操作！</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div> 
-					</form>
-				</div>
-				<!--启动-->
-				<div class="layui-tab-item" >
-					<form class="layui-form" style="width: 90%;padding-top: 20px;">
-						<div style="display:none" id="div2">
-							<div class="wrap-container welcome-container">
-								<div class="row">
-									<div class="welcome-left-container col-lg-9">
-										<!--启动说明-->
-										<div class="server-panel panel panel-default">
-											<div class="panel-header">启动说明</div>
-											<div class="panel-body clearfix">
-													<p class="title">启动后，您所有已经更改过的设置都会对系统运行产生影响，请在启动前仔细检查已有的设置是否正确！确认无误后，再进行启动！</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<form class="layui-form"  style="width: 90%;padding-top: 20px;">
-								<div class="layui-form-item">
-										<pre>						   <button class="layui-btn layui-btn-normal" >启动</button></pre>
-								</div>
-							</form>
-						</div>
-						<div id="div5"> 
-								<div class="wrap-container welcome-container">
-									<div class="row">
-										<div class="welcome-left-container col-lg-9">
-											<!--警告-->
-											<div class="server-panel panel panel-default">
-												<div class="panel-header">警告</div>
-												<div class="panel-body clearfix">
-														<p class="title">请您先完成前几项操作，再进行其余操作！</p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-						</div>						
-				</div>
-				<!--查看房间信息-->
-				<div class="layui-tab-item" style="display:none" id="div3"> 
-					<form class="layui-form" style="width: 90%;padding-top: 20px;">
-						<div style="display:none" id="div3">
-							<div class="layui-form-item">
-								<div id="tableDiv" hidden></div> <!--数据表格-->
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-normal" onclick="onStartUpRequest()">启动</button>
 							</div>
 						</div>
-						<div id="div6"> 
-							<div class="wrap-container welcome-container">
-								<div class="row">
-									<div class="welcome-left-container col-lg-9">
-										<!--警告-->
-										<div class="server-panel panel panel-default">
-											<div class="panel-header">警告</div>
-											<div class="panel-body clearfix">
-													<p class="title">请您先完成前几项操作，再进行其余操作！</p>
-											</div>
+					</div>
+					<div id="startWarnDiv">
+						<div class="wrap-container welcome-container">
+							<div class="row">
+								<div class="welcome-left-container col-lg-9">
+									<!--警告-->
+									<div class="server-panel panel panel-default">
+										<div class="panel-header">警告</div>
+										<div class="panel-body clearfix">
+											<p class="title">请您先开机并设置参数，再进行其余操作！</p>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div> 
-					</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--查看房间信息-->
+			<div class="layui-tab-item">
+				<div class="layui-form" style="width: 90%;padding-top: 20px;">
+					<div style="display:none" id="checkDiv">
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-normal" onclick="onCheckRequest()">刷新</button>
+							</div>
+						</div>
+						<div id="tableDiv"></div>
+					</div>
+					<div id="checkWarnDiv">
+						<div class="wrap-container welcome-container">
+							<div class="row">
+								<div class="welcome-left-container col-lg-9">
+									<!--警告-->
+									<div class="server-panel panel panel-default">
+										<div class="panel-header">警告</div>
+										<div class="panel-body clearfix">
+											<p class="title">请您先开机并设置参数，再进行其余操作！</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
-		<script src="../static/layui/layui.js" type="text/javascript" charset="utf-8"></script>
-		<script>
-			//Demo
-			layui.use(['form', 'element'], function() {
-				var form = layui.form();
-				var $ = jQuery = layui.jquery;
-				var element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
-				var layer = layui.layer;
-				var $ = layui.jquery
-				,element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
-				var active = {
-					tabChange: function(){
-						  //切换到指定Tab项
-						  element.tabChange('demo', '22'); //切换到：用户管理
-						}
-					};
-			});
-			
-			const HOST = "../../";
-			const timeoutDur = 3000;
-			
-			var controlButton = document.getElementById("controlButton");
-			var paraDiv=document.getElementById("paraDiv");
-			var modeValue;
-			var tmpHInput=document.getElementById("tmpHInput");
-			var tmpDInput=document.getElementById("tmpDInput");
-			var tmpLInput=document.getElementById("tmpLInput");
-			var rateHInput=document.getElementById("rateHInput");
-			var rateMInput=document.getElementById("rateMInput");
-			var rateLInput=document.getElementById("rateLInput");
-			var tableDiv=document.getElementById("tableDiv");
-			tmpHInput.value=30;
-			tmpLInput.value=16;
-			tmpDInput.value=24;
-			rateHInput.value=1.6;
-			rateMInput.value=1.4;
-			rateLInput.value=1.2;
+	</div>
+</body>
+<script src="../static/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	//Demo
+	layui.use(['form', 'element'], function () {
+		var form = layui.form; 	
+		var $ = jQuery = layui.jquery;
+		var element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+		var layer = layui.layer;
+		var $ = layui.jquery
+			, element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+		var active = {
+			tabChange: function () {
+				//切换到指定Tab项
+				element.tabChange('demo', '22'); //切换到：用户管理
+			}
+		};
+	});
 
-			var container = document.getElementById('tableDiv');
-			var hot = new Handsontable(container, {
-				language: "zh-CN",
-				filters: true,
-				autoColumnSize: true,
-				multiColumnSorting: true,
-				allowInsertColumn: false,
-				allowInsertRow: false,
-				allowRemoveColumn: true,
-				allowRemoveRow: false,
-				dropdownMenu: ['filter_by_condition', 'filter_by_value', 'filter_action_bar'],
-				dataSchema: { id: null, ocp: null, state: null, curTmp: null, spd: null, trgTmp: null, total:null},
-				colHeaders: ["房号", "有无入住", "状态", "室温", "风速", "目标温度", "客户消费"],
-				columns: [
-					{ data: "id", type: 'text', className: "htCenter", editor: false },
-					{ data: "ocp", type: 'text', className: "htCenter", editor: false },
-					{ data: "state", type: 'text', className: "htCenter", editor: false },
-					{ data: "curTmp", type: 'numeric', className: "htCenter", editor: false },
-					{ data: "spd", type: 'text', className: "htCenter", editor: false },
-					{ data: "trgTmp", type: 'numeric', className: "htCenter", editor: false },
-					{ data: "total", type: 'numeric', className: "htCenter", editor: false }
-				],
-				data: []
-			});
+	const HOST = "../../";
+	const timeoutDur = 3000;
 
-			var powerOnRequest = new XMLHttpRequest();
-			powerOnRequest.onreadystatechange = function(){
-				if (powerOnRequest.readyState == 4) {
-					if(powerOnRequest.status==200) {
-						controlButton.textContent="设置参数";
-						paraDiv.removeAttribute("hidden");
-						tableDiv.hidden=true;
-					}
-					else{
-						console.error("powerOn status error:" + powerOnRequest.status);
-						alert("开机失败");
-					}
-					controlButton.removeAttribute("disabled");
-				}
-			}
-			powerOnRequest.ontimeout = function () {
-				alert("开机响应超时");
-				console.error("开机超时");
-				controlButton.removeAttribute("disabled");
-			}
-			var powerOnPara = new Object();
-			powerOnPara.actorType="adm";
-			powerOnPara.requestType="on";
-			var powerOnStr = JSON.stringify(powerOnPara)
-			function onPowerOnRequest(){
-				controlButton.disabled=true;
-				powerOnRequest.open("POST",HOST,true);
-				powerOnRequest.timeout=timeoutDur;
-				powerOnRequest.send(powerOnStr);
-			}
-			
-			var setParaRequest=new XMLHttpRequest();
-			setParaRequest.onreadystatechange = function(){
-				if (setParaRequest.readyState == 4) {
-					if(setParaRequest.status==200) {
-						controlButton.textContent="启动！";
-						paraDiv.removeAttribute("hidden");
-						tableDiv.hidden=true;
-					}
-					else{
-						console.error("setPara status error:" + setParaRequest.status);
-						alert("设置失败");
-					}
-					controlButton.removeAttribute("disabled");
-				}
-			}
-			setParaRequest.ontimeout = function () {
-				alert("设置参数响应超时");
-				console.error("设置参数超时");
-				controlButton.removeAttribute("disabled");
-			}
-			var setParaPara=new Object();
-			setParaPara.actorType="adm";
-			setParaPara.requestType="para";
-			function onSetParaRequest(){
-				setParaPara.mode=modeValue;
-				setParaPara.tmpH=parseFloat(tmpHInput.value);
-				setParaPara.tmpD=parseFloat(tmpDInput.value);
-				setParaPara.tmpL=parseFloat(tmpLInput.value);
-				setParaPara.rateH=parseFloat(rateHInput.value);
-				setParaPara.rateM=parseFloat(rateMInput.value);
-				setParaPara.rateL=parseFloat(rateLInput.value);
-				if(checkSettingPara(setParaPara)){
-					controlButton.disabled=true;
-					setParaRequest.open("POST",HOST,true);
-					setParaRequest.timeout=timeoutDur;
-					setParaRequest.send(JSON.stringify(setParaPara));
-				}
-			}
+	var paraDiv = document.getElementById("paraDiv");
+	var modeValue="C";
+	var tmpHInput = document.getElementById("tmpHInput");
+	var tmpDInput = document.getElementById("tmpDInput");
+	var tmpLInput = document.getElementById("tmpLInput");
+	var rateHInput = document.getElementById("rateHInput");
+	var rateMInput = document.getElementById("rateMInput");
+	var rateLInput = document.getElementById("rateLInput");
+	var tableDiv = document.getElementById("tableDiv");
+	tmpHInput.value = 30;
+	tmpLInput.value = 16;
+	tmpDInput.value = 24;
+	rateHInput.value = 1.6;
+	rateMInput.value = 1.4;
+	rateLInput.value = 1.2;
+	var container = document.getElementById('tableDiv');
+	var hot = new Handsontable(container, {
+		language: "zh-CN",
+		filters: true,
+		autoColumnSize: true,
+		multiColumnSorting: true,
+		allowInsertColumn: false,
+		allowInsertRow: false,
+		allowRemoveColumn: true,
+		allowRemoveRow: false,
+		dropdownMenu: ['filter_by_condition', 'filter_by_value', 'filter_action_bar'],
+		dataSchema: { id: null, ocp: null, state: null, curTmp: null, spd: null, trgTmp: null, total: null },
+		colHeaders: ["房号", "有无入住", "状态", "室温", "风速", "目标温度", "客户消费"],
+		columns: [
+			{ data: "id", type: 'text', className: "htCenter", editor: false },
+			{ data: "ocp", type: 'text', className: "htCenter", editor: false },
+			{ data: "state", type: 'text', className: "htCenter", editor: false },
+			{ data: "curTmp", type: 'numeric', className: "htCenter", editor: false },
+			{ data: "spd", type: 'text', className: "htCenter", editor: false },
+			{ data: "trgTmp", type: 'numeric', className: "htCenter", editor: false },
+			{ data: "total", type: 'numeric', className: "htCenter", editor: false }
+		],
+		data: []
+	});
 
-			var startRequest=new XMLHttpRequest();
-			startRequest.onreadystatechange = function(){
-				if (startRequest.readyState == 4) {
-					if(startRequest.status==200) {
-						controlButton.textContent="查看房间状态";
-						paraDiv.hidden=true;
-						tableDiv.removeAttribute("hidden");
-					}
-					else{
-						console.error("startUp status error:" + startRequest.status);
-						alert("启动失败");
-					}
-					controlButton.removeAttribute("disabled");
-				}
+	var powerOnRequest = new XMLHttpRequest();
+	powerOnRequest.onreadystatechange = function () {
+		if (powerOnRequest.readyState == 4) {
+			if (powerOnRequest.status == 200) {
+				alert("开机成功");
+				document.getElementById("setParaDiv").style.display = "block";
+				document.getElementById("setParaWarnDiv").style.display = "none";
 			}
-			startRequest.ontimeout = function () {
-				alert("开机响应超时");
-				console.error("开机超时");
-				controlButton.removeAttribute("disabled");
+			else {
+				console.error("powerOn status error:" + powerOnRequest.status);
+				alert("开机失败");
 			}
-			var startPara=new Object();
-			startPara.actorType="adm";
-			startPara.requestType="start";
-			var startStr=JSON.stringify(startPara);
-			function onStartUpRequest(){
-				controlButton.disabled=true;
-				startRequest.open("POST",HOST,true);
-				startRequest.timeout=timeoutDur;
-				startRequest.send(startStr);
-			}
+		}
+	}
+	powerOnRequest.ontimeout = function () {
+		alert("开机响应超时");
+		console.error("开机超时");
+	}
+	var powerOnPara = new Object();
+	powerOnPara.actorType = "adm";
+	powerOnPara.requestType = "on";
+	var powerOnStr = JSON.stringify(powerOnPara)
+	function onPowerOnRequest() {
+		powerOnRequest.open("POST", HOST, true);
+		powerOnRequest.timeout = timeoutDur;
+		powerOnRequest.send(powerOnStr);
+	}
 
-			var checkRequest=new XMLHttpRequest();
-			checkRequest.onreadystatechange = function(){
-				if (checkRequest.readyState == 4) {
-					if(checkRequest.status==200) {
-						var checkData = JSON.parse(checkRequest.responseText);
-						for(i in checkData){
-							switch(checkData[i].state){
-								case "R":checkData[i].state="运行";break;
-								case "W":checkData[i].state="等待调度";break;
-								case "H":checkData[i].state="挂起";break;
-								case "F":checkData[i].state="关机";break;
-							}
-							if(checkData[i].ocp=="t"){
-								checkData[i].ocp="有";
-							}
-							else{
-								checkData[i].ocp="无";
-							}
-						}
-						hot.loadData(checkData);
-						tableDiv.removeAttribute("hidden");
-					}
-					else{
-						console.error("check status error:" + checkRequest.status);
-						alert("查看请求失败");
-					}
-				}
-				controlButton.removeAttribute("disabled");
+	var setParaRequest = new XMLHttpRequest();
+	setParaRequest.onreadystatechange = function () {
+		if (setParaRequest.readyState == 4) {
+			if (setParaRequest.status == 200) {
+				alert("设置成功");
+				document.getElementById("startDiv").style.display = "block";
+				document.getElementById("checkDiv").style.display = "block";
+				document.getElementById("startWarnDiv").style.display = "none";
+				document.getElementById("checkWarnDiv").style.display = "none";
 			}
-			checkRequest.ontimeout = function () {
-				alert("查看请求超时");
-				console.error("查看超时");
-				controlButton.removeAttribute("disabled");
+			else {
+				console.error("setPara status error:" + setParaRequest.status);
+				alert("设置失败");
 			}
-			var checkPara=new Object();
-			checkPara.actorType="adm";
-			checkPara.requestType="check";
-			var checkStr=JSON.stringify(checkPara);
-			function checkSettingPara(para){
-				var correct=true;
-				if(para.mode==null){
-					alert("请选择模式");
-					correct=false;
-				}
-				if(isNaN(para.tmpH)){
-					alert("调温最高温度数值格式错误");
-					correct=false;
-				}
-				if(isNaN(para.tmpD)){
-					alert("调温默认温度数值格式错误");
-					correct=false;
-				}
-				if(isNaN(para.tmpL)){
-					alert("调温最低温度数值格式错误");
-					correct=false;
-				}
-				if(para.tmpH<para.tmpL){
-					alert("最高温不能低于最低温");
-					correct=false;
-				}
-				if(para.tmpD<para.tmpL){
-					alert("默认温度不能低于最低温");
-					correct=false;
-				}
-				if(para.tmpD>para.tmpH){
-					alert("默认温度不能高于最高温");
-					correct=false;
-				}
-				if(isNaN(para.rateH)){
-					alert("请输入高风速费率");
-					correct=false;
-				}
-				if(isNaN(para.rateM)){
-					alert("请输入中风速费率");
-					correct=false;
-				}
-				if(isNaN(para.rateL)){
-					alert("请输入低风速费率");
-					correct=false;
-				}
-				return correct;
-			}
-			function onCheckRequest(){
-				controlButton.disabled=true;
-				checkRequest.open("POST",HOST,true);
-				checkRequest.timeout=timeoutDur;
-				checkRequest.send(checkStr);
-			}
+		}
+	}
+	setParaRequest.ontimeout = function () {
+		alert("设置参数响应超时");
+		console.error("设置参数超时");
+	}
+	var setParaPara = new Object();
+	setParaPara.actorType = "adm";
+	setParaPara.requestType = "para";
+	function checkSettingPara(para) {
+		var correct = true;
+		if (para.mode == null) {
+			alert("请选择模式");
+			correct = false;
+		}
+		if (isNaN(para.tmpH)) {
+			alert("调温最高温度数值格式错误");
+			correct = false;
+		}
+		if (isNaN(para.tmpD)) {
+			alert("调温默认温度数值格式错误");
+			correct = false;
+		}
+		if (isNaN(para.tmpL)) {
+			alert("调温最低温度数值格式错误");
+			correct = false;
+		}
+		if (para.tmpH < para.tmpL) {
+			alert("最高温不能低于最低温");
+			correct = false;
+		}
+		if (para.tmpD < para.tmpL) {
+			alert("默认温度不能低于最低温");
+			correct = false;
+		}
+		if (para.tmpD > para.tmpH) {
+			alert("默认温度不能高于最高温");
+			correct = false;
+		}
+		if (isNaN(para.rateH)) {
+			alert("请输入高风速费率");
+			correct = false;
+		}
+		if (isNaN(para.rateM)) {
+			alert("请输入中风速费率");
+			correct = false;
+		}
+		if (isNaN(para.rateL)) {
+			alert("请输入低风速费率");
+			correct = false;
+		}
+		return correct;
+	}
+	function onSetParaRequest() {
+		setParaPara.mode = modeValue;
+		setParaPara.tmpH = parseFloat(tmpHInput.value);
+		setParaPara.tmpD = parseFloat(tmpDInput.value);
+		setParaPara.tmpL = parseFloat(tmpLInput.value);
+		setParaPara.rateH = parseFloat(rateHInput.value);
+		setParaPara.rateM = parseFloat(rateMInput.value);
+		setParaPara.rateL = parseFloat(rateLInput.value);
+		if (checkSettingPara(setParaPara)) {
+			setParaRequest.open("POST", HOST, true);
+			setParaRequest.timeout = timeoutDur;
+			setParaRequest.send(JSON.stringify(setParaPara));
+		}
+	}
 
-			function onStartClick(){
-				switch(controlButton.textContent){
-					case "开机":onPowerOnRequest();break;
-					case "设置参数":onSetParaRequest();break;
-					case "启动！":onStartUpRequest();break;
-					case "查看房间状态":onCheckRequest();break;
-				}
+	var startRequest = new XMLHttpRequest();
+	startRequest.onreadystatechange = function () {
+		if (startRequest.readyState == 4) {
+			if (startRequest.status == 200) {
+				alert("启动成功");
 			}
+			else {
+				console.error("startUp status error:" + startRequest.status);
+				alert("启动失败");
+			}
+		}
+	}
+	startRequest.ontimeout = function () {
+		alert("开机响应超时");
+		console.error("开机超时");
+	}
+	var startPara = new Object();
+	startPara.actorType = "adm";
+	startPara.requestType = "start";
+	var startStr = JSON.stringify(startPara);
+	function onStartUpRequest() {
+		startRequest.open("POST", HOST, true);
+		startRequest.timeout = timeoutDur;
+		startRequest.send(startStr);
+	}
 
-			function onStartClick1(){
-				document.getElementById("div1").style.display="block";
-				document.getElementById("div4").style.display="none";
+	var checkRequest = new XMLHttpRequest();
+	checkRequest.onreadystatechange = function () {
+		if (checkRequest.readyState == 4) {
+			if (checkRequest.status == 200) {
+				checkData = JSON.parse(checkRequest.responseText);
+				for (i in checkData) {
+					switch (checkData[i].state) {
+						case "R": checkData[i].state = "运行"; break;
+						case "W": checkData[i].state = "等待调度"; break;
+						case "H": checkData[i].state = "挂起"; break;
+						case "F": checkData[i].state = "关机"; break;
+					}
+					if (checkData[i].ocp == "t") {
+						checkData[i].ocp = "有";
+					}
+					else {
+						checkData[i].ocp = "无";
+					}
+				}
+				hot.loadData(checkData);
 			}
-			
-			function onStartClick2(){
-				document.getElementById("div2").style.display="block";
-				document.getElementById("div5").style.display="none";
-				document.getElementById("div4").style.display="none";
+			else {
+				console.error("check status error:" + checkRequest.status);
+				alert("查看请求失败");
 			}
-			
-			function onStartClick3(){
-				document.getElementById("div3").style.display="block";
-				document.getElementById("div6").style.display="none";
-				document.getElementById("div5").style.display="none";
-				document.getElementById("div4").style.display="none";
-			}
-			
-			function onModeChange(value){
-				modeValue=value;
-			}
-		</script>
-	</body>
+		}
+	}
+	checkRequest.ontimeout = function () {
+		alert("查看请求超时");
+		console.error("查看超时");
+	}
+	var checkPara = new Object();
+	checkPara.actorType = "adm";
+	checkPara.requestType = "check";
+	var checkStr = JSON.stringify(checkPara);
+	function onCheckRequest() {
+		checkRequest.open("POST", HOST, true);
+		checkRequest.timeout = timeoutDur;
+		checkRequest.send(checkStr);
+	}
+
+	function onModeChange(value) {
+		modeValue = value;
+	}
+</script>
 
 </html>

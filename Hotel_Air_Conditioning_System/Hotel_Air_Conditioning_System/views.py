@@ -61,39 +61,6 @@ def page(pagename):
     path = os.path.join(app.root_path,"frontend/"+pagename)
     f = open(path, encoding='utf-8')
     return f.read()
-# # 主页1
-# @app.route('/frontend/index.html')
-# def home_page1():
-#     f = open(app.root_path+"\\frontend\\index.html", encoding='utf-8')
-#     return f.read()
-
-# # 主页
-# @app.route('/frontend/home.html')
-# def home_page():
-#     f = open(app.root_path+"\\frontend\\home.html", encoding='utf-8')
-#     return f.read()
-# # 顾客
-# @app.route('/frontend/client/client.html')
-# def client_page():
-#     f = open(app.root_path+"\\frontend\\client\\client.html", encoding='utf-8')
-#     return f.read()
-
-# # 前台
-# @app.route('/frontend/reception/reception.html')
-# def reception_page():
-#     f = open(app.root_path+"\\frontend\\reception\\reception.html", encoding='utf-8')
-#     return f.read()
-# # 管理员
-# @app.route('/frontend/supervisor/supervisor.html')
-# def supervisor_page():
-#     f = open(app.root_path+"\\frontend\\supervisor\\supervisor.html", encoding='utf-8')
-#     return f.read()
-# # 经理
-# @app.route('/frontend/manager/manager.html')
-# def manager_page():
-#     f = open(app.root_path+"\\frontend\\manager\\manager.html", encoding='utf-8')
-#     return f.read()
-
 
 
 
@@ -236,16 +203,18 @@ def create_rdr():
     RDR = cRDRc.CreateRDR(roomID)
     return RDR
 
+# 打印
 @app.route('/api/inf/print', methods=['POST'])
 def print_inv_rdr():
     data = request.data
     params = json.loads(data)
     room_id = params.get("id")
     typee = params.get("type")
-    dateIn = params.get("dateIn")
-    dateOut = params.get("dateOut")
-    base_fname = typee+"_"+str(room_id)+"_"+str(dateIn)+"-"+str(dateOut)+"_json.json"
-    return redirect("/download/"+typee+"/"+base_fname)
+    print(params)
+    dateIn = datetime.strptime(params.get("dateIn"), "%Y-%m-%d %H:%M:%S")
+    dateOut = datetime.strptime(params.get("dateOut"),"%Y-%m-%d %H:%M:%S")
+    base_fname = typee+"_"+str(room_id)+"_"+datetime.strftime(dateIn,"%Y-%m-%d-%H%M%S")+"-"+datetime.strftime(dateOut,"%Y-%m-%d-%H%M%S")+"_json.txt"
+    return "download/"+typee+"/"+base_fname
 
 
 
@@ -256,7 +225,8 @@ def QueryReport():
     data = request.data
     params = json.loads(data)
     rep_type = params.get("type", 0)
-    until = datetime.strptime(params.get("until","1970-1-1"),"%Y-%m-%d")
+    until = datetime.strptime(params.get("until","1970-1-1"),"%Y-%m-%d %H:%M:%S")
+    # until = until_full.date()
     print(until)
     if rep_type == 0:
         return "Invalid Request", 400
@@ -271,9 +241,10 @@ def PrintReport():
     data = request.data
     params = json.loads(data)
     type_report = params.get("type", 0)
-    until = params.get("until","1970-1-1")
-    base_fname = "rep_"+type_report+"_"+until+"_json.json"
-    return redirect("/download/rep/"+base_fname)
+    until_full = params.get("until","1970-1-1")
+    until = str(datetime.strptime(until_full,"%Y-%m-%d %H:%M:%S").date())
+    base_fname = "rep_"+type_report+"_"+until+"_json.txt"
+    return "download/rep/"+base_fname
 
 
 

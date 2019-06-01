@@ -1,57 +1,119 @@
+<!DOCTYPE html>
 <html>
 
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>欢迎光临</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/layui.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/login.css" />
 </head>
 
 <body>
-    <p>房号<input id="roomInput" value="303"></p>
-    <p>状态：<label id="statusLabel"></label>
-    </p>
-    <p>当前温度：<label id="curTmpLabel"></label>
-    </p>
-    <p>总消费：<label id="totalLable"></label></p>
-    <p>目标温度：<label id="trgTmpLabel"></label>
-        <input id="trgTmpInput" />
-        <button id="chgTmpButton" type="button" onclick="onTmpSubmit()">确定</button>
-    </p>
-    <p>风速：<label id="curSpdLabel"></label>
-        <p>
-            <label>高</label>
-            <input type="radio" id="spdHRadio" name="spdRadio" value="H" onclick="onSpdChg(this.value)">
-            <label>中</label>
-            <input type="radio" id="spdMRadio" name="spdRadio" value="M" onclick="onSpdChg(this.value)">
-            <label>低</label>
-            <input type="radio" id="spdLRadio" name="spdRadio" value="L" onclick="onSpdChg(this.value)">
-        </p>
-    </p>
-    
+    <div id="loginDiv" class="m-login-bg">
+        <div class="m-login">
+            <h3>顾客系统登录</h3>
+            <div class="m-login-warp">
+                <div class="layui-form">
+                    <div class="layui-form-item">
+                        <input id="roomInput" autofocus="autofocus" type="text" placeholder="房号" autocomplete="off" class="layui-input" onchange="setRoom(this.value)">
+                    </div>
+                    <div class="layui-form-item m-login-btn">
+                        <div class="layui-inline">
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="login" onclick="onLogin()">登录</button>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="reset" class="layui-btn layui-btn-primary">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="copyright">Copyright 2018-2019 by GROUP.C</p>
+        </div>
+    </div>
+    <div id="uiDiv" class="m-login-bg" style="display: none">
+        <div class="m-login">
+            <h3>欢迎光临</h3>
+            <div class="m-login-warp">
+                    <div class="layui-form-item">
+                        <p required lay-verify="required" autocomplete="off" class="layui-input"><b>状
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态:</b>
+                            <lable id="statusLabel"></lable>
+                        </p>
+                    </div>
+                    <div class="layui-form-item">
+                        <p required lay-verify="required" autocomplete="off" class="layui-input"><b>消费总额:</b>
+                            <label id="totalLabel"></label>
+                        </p>
+                    </div>
+                    <div class="layui-form-item">
+                        <p required lay-verify="required" autocomplete="off" class="layui-input"><b>当前温度:</b>
+                            <label id="curTmpLabel"></label>
+                        </p>
+                    </div>
 
-    <button id="switchButton" type="button" onclick="onSwitch()">开启</button>
+                    <div class="layui-form-item">
+                        <p required lay-verify="required" autocomplete="off" class="layui-input"><b>当前风速:</b>
+                            <label id="curSpdLabel"></label>
+                        </p>
+                    </div>
+                    <div class="layui-form-item">
+                        <p required lay-verify="required" autocomplete="off" class="layui-input"><b>目标温度:</b>
+                            <label id="trgTmpLabel"></label>
+                            <input id="trgTmpInput" style="background-color: transparent; border: 1px solid black;" />
+                        </p>
+                    </div>
+                    <div class="layui-form-item">
+                        <p required lay-verify="required" autocomplete="off" class="layui-input"><b>目标风速:</b>
+                            <label>高</label>
+                            <input type="radio" id="spdHRadio" name="spdRadio" value="H" onclick="onSpdChg(this.value)">
+                            <label>中</label>
+                            <input type="radio" id="spdMRadio" name="spdRadio" value="M" onclick="onSpdChg(this.value)">
+                            <label>低</label>
+                            <input type="radio" id="spdLRadio" name="spdRadio" value="L" onclick="onSpdChg(this.value)">
+                        </p>
+
+                    </div>
+                    <div>
+                        <div class="layui-inline">
+                            <pre>         <button class="layui-btn layui-btn-normal" id="chgTmpButton" onclick="onTmpSubmit()">确定</button></pre>
+                            
+                        </div>
+                        <div class="layui-inline">
+                            <pre>         <button class="layui-btn layui-btn-normal" id="switchButton" onclick="onSwitch()">开启</button></pre>
+                        </div>
+                    </div>
+            </div>
+            <p class="copyright">Copyright 2018-2019 by GROUP.C</p>
+        </div>
+    </div>
+
 </body>
 <script>
     const HOST = "../../";
     const timeoutDur = 3000;
-    const refreshIntv = 5000;
+    const refreshIntv = 10000;
 
-
-    var roomInput =document.getElementById("roomInput");
+    var rooomInput=document.getElementById("roomID");
     var statusLabel = document.getElementById("statusLabel");
     var curSpdLabel = document.getElementById("curSpdLabel");
     var curTmpLabel = document.getElementById("curTmpLabel");
     var spdHRadio = document.getElementById("spdHRadio");
     var spdMRadio = document.getElementById("spdMRadio");
     var spdLRadio = document.getElementById("spdLRadio");
-
+    spdHRadio.style.display="inline";
+    spdMRadio.style.display="inline";
+    spdLRadio.style.display="inline";
     var trgTmpInput = document.getElementById("trgTmpInput");
     var chgTmpButton = document.getElementById("chgTmpButton");
     var totalLabel = document.getElementById("totalLabel");
     var switchButton = document.getElementById("switchButton");
 
-    var roomID = "303";
+    var roomID;
 
-    function setRoom(value){
-        roomID=value;
+    function setRoom(value) {
+        roomID = value;
     }
 
     var refreshRequest = new XMLHttpRequest();
@@ -67,11 +129,11 @@
                 }
                 curTmpLabel.textContent = data.curTmp;
                 switch (data.spd) {
-                    case "L": curSpdLabel.textContent = "低";
-                    case "M": curSpdLabel.textContent = "中";
-                    case "H": curSpdLabel.textContent = "高";
+                    case "L": curSpdLabel.textContent = "低"; break;
+                    case "M": curSpdLabel.textContent = "中"; break;
+                    case "H": curSpdLabel.textContent = "高"; break;
                 }
-                totalLabel = data.total;
+                totalLabel.textContent = data.total;
             }
             else {
                 console.error("refresh status error:" + refreshRequest.status);
@@ -86,14 +148,12 @@
     var refreshPara = new Object();
     refreshPara.actorType = "cos";
     refreshPara.requestType = "ref";
-    refreshPara.roomID = roomID;
-    var refreshStr = JSON.stringify(refreshPara)
     function refresh() {
+        refreshPara.roomID = roomID;
         refreshRequest.open("POST", HOST, true);
         refreshRequest.timeout = timeoutDur;
-        refreshRequest.send(refreshStr);
+        refreshRequest.send(JSON.stringify(refreshPara));
     }
-    var refreshInterval = setInterval("refresh()", refreshIntv);
 
     var turnOnRequest = new XMLHttpRequest();
     turnOnRequest.onreadystatechange = function () {
@@ -106,19 +166,15 @@
                 console.error("turnOn status error:" + turnOnRequest.status);
                 alert("开机请求失败");
             }
-            switchButton.removeAttribute("disabled");
         }
     }
     turnOnRequest.ontimeout = function () {
         alert("开机响应超时，请联系管理员");
         console.error("开机超时");
-        switchButton.removeAttribute("disabled");
     }
     var turnOnPara = new Object();
     turnOnPara.actorType = "cos";
     turnOnPara.requestType = "on";
-    turnOnPara.roomID = roomID;
-    var turnOnStr = JSON.stringify(turnOnPara);
     var turnOffRequest = new XMLHttpRequest();
     turnOffRequest.onreadystatechange = function () {
         if (turnOffRequest.readyState == 4) {
@@ -130,30 +186,27 @@
                 console.error("turnOff status error:" + turnOffRequest.status);
                 alert("关机请求失败");
             }
-            switchButton.removeAttribute("disabled");
         }
     }
     turnOffRequest.ontimeout = function () {
         alert("关机响应超时，请联系管理员");
         console.error("关机超时");
-        switchButton.removeAttribute("disabled");
     }
     var turnOffPara = new Object();
     turnOffPara.actorType = "cos";
     turnOffPara.requestType = "off";
-    turnOffPara.roomID = roomID;
-    var turnOffStr = JSON.stringify(turnOffPara);
     function onSwitch() {
-        switchButton.disabled = true;
         if (switchButton.textContent == "开启") {
+            turnOnPara.roomID = roomID;
             turnOnRequest.open("POST", HOST, true);
             turnOnRequest.timeout = timeoutDur;
-            turnOnRequest.send(turnOnStr);
+            turnOnRequest.send(JSON.stringify(turnOnPara));
         }
         else {
+            turnOffPara.roomID = roomID;
             turnOffRequest.open("POST", HOST, true);
             turnOffRequest.timeout = timeoutDur;
-            turnOffRequest.send(turnOffStr);
+            turnOffRequest.send(JSON.stringify(turnOffPara));
         }
     }
 
@@ -164,37 +217,31 @@
                 alert("温度超过范围");
             }
             else if (chgTmpRequest.status == 200) {
-                trgTmpInput.value="";
+                trgTmpInput.value = "";
             }
-            else{
+            else {
                 console.error("chgTmp status error:" + chgTmpRequest.status);
                 alert("调温失败");
             }
-            trgTmpInput.removeAttribute("disabled");
-            chgTmpButton.removeAttribute("disabled");
         }
     }
     chgTmpRequest.ontimeout = function () {
         alert("调温响应超时，请联系管理员");
         console.error("调温超时");
-        trgTmpInput.removeAttribute("disabled");
-        chgTmpButton.removeAttribute("disabled");
     }
     var chgTmpPara = new Object();
     chgTmpPara.actorType = "cos";
     chgTmpPara.requestType = "tmp";
     chgTmpPara.roomID = roomID;
     function onTmpSubmit() {
-        var tmp=parseFloat(trgTmpInput.value);
-        if(isNaN(tmp)){
+        var tmp = parseFloat(trgTmpInput.value);
+        if (isNaN(tmp)) {
             chgTmpPara.trg = tmp;
-            trgTmpInput.disabled = true;
-            chgTmpButton.disabled = true;
             chgTmpRequest.open("POST", HOST, true);
             chgTmpRequest.timeout = timeoutDur;
             chgTmpRequest.send(JSON.stringify(chgTmpPara));
         }
-        else{
+        else {
             alert("温度格式有误");
         }
     }
@@ -203,38 +250,17 @@
     chgSpdRequest.onreadystatechange = function () {
         if (chgSpdRequest.readyState == 4) {
             if (chgSpdRequest.status == 200) {
-                switch (chgTmpPara.trg) {
-                    case "H":
-                        spdMRadio.removeAttribute("disabled");
-                        spdLRadio.removeAttribute("disabled");
-                        break;
-                    case "M":
-                        spdHRadio.removeAttribute("disabled");
-                        spdLRadio.removeAttribute("disabled");
-                        break;
-                    case "L":
-                        spdHRadio.removeAttribute("disabled");
-                        spdMRadio.removeAttribute("disabled");
-                        break;
-
-                }
                 curSpdLabel.textContent = chgSpdPara.trg;
             }
             else {
                 console.error("chgSpd status error:" + chgSpdRequest.status);
                 alert("调风速失败");
-                spdHRadio.removeAttribute("disabled");
-                spdMRadio.removeAttribute("disabled");
-                spdLRadio.removeAttribute("disabled");
             }
         }
     }
     chgSpdRequest.ontimeout = function () {
         alert("调风速响应超时，请联系管理员");
         console.error("调风速超时");
-        spdHRadio.removeAttribute("disabled");
-        spdMRadio.removeAttribute("disabled");
-        spdLRadio.removeAttribute("disabled");
     }
     var chgSpdPara = new Object();
     chgSpdPara.actorType = "cos";
@@ -242,15 +268,24 @@
     chgSpdPara.roomID = roomID;
     chgSpdPara.trg = "";
     function onSpdChg(value) {
-        spdHRadio.disabled = true;
-        spdMRadio.disabled = true;
-        spdLRadio.disabled = true;
         chgSpdPara.trg = value;
         chgTmpRequest.open("POST", HOST, true);
         chgTmpRequest.timeout = timeoutDur;
         chgTmpRequest.send(JSON.stringify(chgSpdPara));
-    }    
-</script>
+    }
 
+    function onLogin(){
+        if(roomInput.value==null || roomInput.value.trim()==""){
+            alert("房号不能为空");
+        }
+        else{
+            setInterval(refresh(),refreshIntv);
+            roomID=roomInput.value;
+            document.getElementById("loginDiv").remove();
+            document.getElementById("uiDiv").style.display="block";
+        }
+    }
+
+</script>
 
 </html>

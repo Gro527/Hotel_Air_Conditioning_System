@@ -9,11 +9,14 @@
 		<title>查看全部房间</title>
 		<link rel="stylesheet" type="text/css" href="../static/layui/css/layui.css" />
 		<link rel="stylesheet" type="text/css" href="../static/css/admin.css" />
+		<script src="../static/handsontable/dist/handsontable.full.min.js"></script>
+		<link href="../static/handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+		<script src="../static/handsontable/dist/languages/zh-CN.js"></script>
 	</head>
 
 	<body>
 		<div class="page-content-wrap">
-					<form class="layui-form" action="">
+					<div class="layui-form" action="">
 						<div class="layui-form-item" id="inputDiv"> <!--用户输入块-->
 							<div class = "layui-inline">
 								<label class="layui-form-label">类型：</label>
@@ -36,10 +39,8 @@
 								<button class="layui-btn layui-btn-normal" id="confirmButton" onclick="onConfirm()">确认</button><button class="layui-btn layui-btn-normal" id="printButton" onclick="onPrint()" hidden>打印</button>
 							</div>
 						</div>
-						<div class="layui-form-item">
-							<div id="reportDiv"></div> <!--数据表格-->
-						</div>
-					</form>
+						<div id="reportDiv"></div> <!--数据表格-->
+					</div>
 		</div>
 		<script src="../static/layui/layui.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../static/js/common.js" type="text/javascript" charset="utf-8"></script>
@@ -52,7 +53,11 @@
 			var untilInput = document.getElementById("untilInput");
 			var confirmButton = document.getElementById("confirmButton");
 			var printButton=document.getElementById("printButton");
-			untilInput.value = new Date();
+			function formatDate(date){
+				return date.getFullYear()+'-'+date.getMonth()+'-'+date.getDay()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+			}
+			var date=new Date();
+			untilInput.value = formatDate(date);
 
 			var reportData;
 			var container = document.getElementById('reportDiv');
@@ -121,7 +126,10 @@
 			var printRequest = new XMLHttpRequest();
 			printRequest.onreadystatechange = function () {
 				if (printRequest.readyState == 4) {
-					if (printRequest.status != 200) {
+					if (printRequest.status == 200) {
+						window.open(HOST+printRequest.responseText);
+					}
+					else{
 						console.error("print report status error:" + printRequest.status);
 						alert("打印报表失败");
 					}

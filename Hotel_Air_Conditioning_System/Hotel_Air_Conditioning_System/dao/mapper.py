@@ -11,8 +11,8 @@ class iInvoice(base):
                Sequence('invoice_id_seq', start=1001, increment=1),
                primary_key = True)
     room_id = Column(String(16))
-    date_in = Column(Date)
-    date_out = Column(Date)
+    date_in = Column(DateTime)
+    date_out = Column(DateTime)
     total = Column(Float)
 
 

@@ -5,12 +5,16 @@ from Hotel_Air_Conditioning_System.impl import Service
 import json
 import random
 import os
+import datetime
+from flask import current_app
 class CreateInvoiceController(object):
     def CreateInvoice(self, room_id):
         iidao = iInvoiceDAO()
-        date_in = iidao.GetInvoiceById(iidao.GetLastInvoiceId(room_id)).date_in
-        base_fname = "inv_"+str(room_id)+"_"+str(date_in)
-        if os.path.exists("inv/"+base_fname+"_json.json") == False:
+        invoice = iidao.GetInvoiceById(iidao.GetLastInvoiceId(room_id))
+        date_in = invoice.date_in
+        date_out = invoice.date_out
+        # base_fname = "inv_"+str(room_id)+"_"+str(date_in)
+        if not date_out:
             s = Service.Service(random.randint(1001,10001))
             res = s.ShowDetailBill(room_id)
             rdrlist = res[0]
@@ -23,7 +27,8 @@ class CreateInvoiceController(object):
             rdr = RDR.RDR(invoice_id, room_id, date_in, date_out, total, rdrlist)
             rdr.out_file()
         else:
-            f = open("inv/"+base_fname+"_json.json","r")
+            base_fname = "inv_"+str(room_id)+"_"+datetime.datetime.strftime(date_in,"%Y-%m-%d-%H%M%S")+"-"+datetime.datetime.strftime(date_out,"%Y-%m-%d-%H%M%S")
+            f = open(current_app.root_path+"\\inv\\"+base_fname+"_json.txt","r")
             data = json.loads(f.read())
             date_in = data["date_in"]
             date_out = data["date_out"]

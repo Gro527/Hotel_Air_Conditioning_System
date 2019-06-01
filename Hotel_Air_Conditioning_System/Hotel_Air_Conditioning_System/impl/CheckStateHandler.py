@@ -23,7 +23,9 @@ class CheckStateHandler(object):
                 res["curTmp"] = serv.GetCurTmp()
                 res["spd"] = serv.GetCurSpd()
             res["trgTmp"] = room.trg_tmp
-        # 新建一个临时服务对象，计算当前用户累计消费
-        res["total"] = Service(6666).ShowBill(iiid)
+            # 新建一个临时服务对象，计算当前用户累计消费
+            res["total"] = Service(6666).ShowBill(iiid)
+        else:
+            res["total"] = 0
         return res
 

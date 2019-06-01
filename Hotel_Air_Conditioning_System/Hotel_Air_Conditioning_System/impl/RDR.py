@@ -1,5 +1,6 @@
 import json
 from flask import current_app
+import datetime
 class RDR(object):
     def __init__(self, invoice_id, room_id, date_in, date_out, total, rList):
         self.invoice_id = invoice_id
@@ -9,8 +10,8 @@ class RDR(object):
         self.total = total
         self.rList = rList
     def out_file(self):
-        base_fname = "rdr_"+str(self.room_id)+"_"+str(self.date_in)+"-"+str(self.date_out)
-        f = open(current_app.root_path+"\\rdr\\"+base_fname+"_json.json","w")
+        base_fname = "rdr_"+str(self.room_id)+"_"+datetime.datetime.strftime(self.date_in,"%Y-%m-%d-%H%M%S")+"-"+datetime.datetime.strftime(self.date_out,"%Y-%m-%d-%H%M%S")
+        f = open(current_app.root_path+"\\rdr\\"+base_fname+"_json.txt","w")
         content = {}
         content["invoice_id"] = self.invoice_id
         content["room_id"] = self.room_id

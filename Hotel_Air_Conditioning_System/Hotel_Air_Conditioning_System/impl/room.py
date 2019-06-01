@@ -6,7 +6,7 @@ class room(object):
         self.room_id = room_id
         self.cur_tmp = tmp_today
         self.last_op_time = datetime.now()
-        self.state = "W"
+        self.state = "F"
         self.trg_tmp = trg_tmp
     def ref_tmp(self):
         ## 如果空调正在运行，温控交给Service处理

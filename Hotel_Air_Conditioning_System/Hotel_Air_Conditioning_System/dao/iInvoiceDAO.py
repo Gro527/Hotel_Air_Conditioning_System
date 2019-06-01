@@ -14,8 +14,11 @@ class iInvoiceDAO(object):
         if last_invoice == None:
             return None
         return last_invoice.id
+    def GetLastInvoice(self, room_id):
+        last_invoice = session.query(iInvoice).filter_by(room_id = room_id).order_by(iInvoice.date_in.desc()).first()
+        return last_invoice
     def AddInvoice(self, room_id):
-        date_in = datetime.date.today()
+        date_in = datetime.datetime.now()
         exist_invoice = session.query(iInvoice).filter_by(room_id = room_id, date_in=date_in).all()
         if len(exist_invoice) != 0:
             return exist_invoice[0].id

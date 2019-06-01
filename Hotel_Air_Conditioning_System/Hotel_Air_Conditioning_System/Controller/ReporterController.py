@@ -71,7 +71,7 @@ class ReporterController(object):
         ## 保存报告
         jsontxt = json.dumps(res)
         base_fname = "rep_"+type_report+"_"+until.strftime('%Y-%m-%d')
-        f = open(current_app.root_path+"\\rep\\"+base_fname+"_json.json","w")
+        f = open(current_app.root_path+"\\rep\\"+base_fname+"_json.txt","w")
         f.write(jsontxt)
         return jsontxt
     def PrintReport(self, report_id, date):
