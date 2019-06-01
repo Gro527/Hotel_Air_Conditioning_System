@@ -23,8 +23,6 @@
                     <input type="text" id="roomInput" onchange="roomChanging()" placeholder="请输入房间号" autocomplete="off"
                         class="layui-input">
                 </div>
-                <button class="layui-btn layui-btn-normal" lay-submit="search" type="button" id="printButton"
-                    onclick="onPrint()">打印</button>
             </div>
         </div>
         <table class="layui-table" lay-even lay-skin="nob">
@@ -36,9 +34,6 @@
                 <tr>
                     <th>入住时间<label id="dateInLabel"></th>
                     <th>退房时间<label id="dateOutLabel"></th>
-                    <th>
-                        <p id="totalElem">
-                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -49,83 +44,83 @@
             </tbody>
         </table>
     </div>
-    <div class="layui-tab page-content-wrap" lay-filter="demo">
-        <ul class="layui-tab-title">
-            <li lay-id="11" onclick="onInvoice()" id="invButton">账单</li>
-            <li lay-id='22' onclick="onRDR()" id="rdrButton">详单</li>
-        </ul>
-        <div class="layui-tab-content">
-            <div class="layui-tab-item ">
-                <div class="layui-div">
-
-                    <table class="layui-table" lay-even lay-skin="nob">
-                        <colgroup>
-                            <col width="800">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>账单</th>
-                            </tr>
-                            <tr>
-                            </tr>
-                        </thead>
-                    </table>
-                    <table class="layui-table" lay-even lay-skin="nob">
-                        <colgroup>
-                            <col width="400">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>总金额</th>
-                                <th>
-                                    <p id="totalElem"><label id="totalLabel"></label>
-                                </th>
-                            </tr>
-                        </thead>
-                    </table>
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button class="layui-btn layui-btn-normal" onclick='onPrint("inv")'>打印</button>
-                        </div>
-                    </div>
-                </div>
+	<div class="layui-tab">
+	  <ul class="layui-tab-title">
+		<li class="layui-this" onclick="onInvoice()" id="invButton">账单</li>
+		<li onclick="onRDR()" id="rdrButton">详单</li>
+	  </ul>
+	  <div class="layui-tab-content">
+		<div class="layui-tab-item layui-show">                    
+			<table class="layui-table" lay-even lay-skin="nob">
+				<colgroup>
+					<col width="800">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>账单</th>
+					</tr>
+					<tr>
+					</tr>
+				</thead>
+			</table>
+			<table class="layui-table" lay-even lay-skin="nob">
+				<colgroup>
+					<col width="400">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>总金额</th>
+						<th>
+							<label id="totalLabel"></label>
+						</th>
+					</tr>
+				</thead>
+			</table>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" onclick='onPrint("inv")'>打印</button>
+				</div>
+			</div>
+		</div>
+		<div class="layui-tab-item">                
+			<div class="layui-form">
+				<table class="layui-table" lay-even lay-skin="nob">
+					<colgroup>
+						<col width="800">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>详单</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div id="rdrDiv"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="layui-form-item">
+					<div class="layui-input-block">
+						<button class="layui-btn layui-btn-normal" onclick='onPrint("rdr")'>打印</button>
+					</div>
+				</div>
             </div>
-            <div class="layui-tab-item ">
-                <div class="layui-form">
-                    <table class="layui-table" lay-even lay-skin="nob">
-                        <colgroup>
-                            <col width="800">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>详单</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div id="rdrDiv"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button class="layui-btn layui-btn-normal" onclick='onPrint("rdr")'>打印</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+		</div>
+	  </div>
 </body>
-<script src="../static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/layui/layui.js" type="text/javascript" charset="utf-8"></script>
 <script src="../static/js/common.js" type="text/javascript" charset="utf-8"></script>
 <script>
+		//Demo
+	layui.use(['form', 'element'], function() {
+		var form = layui.form();
+		var element = layui.element;
+	});
     const HOST = "../../";
     const timeoutDur = 3000;
 
-    var totalElem = document.getElementById("totalElem");
     var rdrDiv = document.getElementById("rdrDiv");
     var dateInLabel = document.getElementById("dateInLabel");
     var dateOutLabel = document.getElementById("dateOutLabel");
@@ -237,24 +232,26 @@
     var printRequest = new XMLHttpRequest();
     printRequest.onreadystatechange = function () {
         if (printRequest.readyState == 4) {
-            if (printRequest.status != 200) {
+            if (printRequest.status == 200) {
+                window.open(HOST+printRequest.responseText);
+            }
+            else{
                 console.error("print request error:" + printRequest.status);
                 alert("系统异常，操作失败，请联系管理员");
             }
         }
     }
     printRequest.ontimeout = function () {
-        printButton.style = 'background:#1e9fff';
         alert("打印响应超时，请联系管理员");
         console.error("print request timeout!");
     }
     var printPara = new Object();
     printPara.actorType = "inf";
     printPara.requestType = "print";
-    printPara.id = roomInput.value;
-    printPara.dateIn = dateInLabel.textContent;
-    printPara.dateOut = dateOutLabel.textContent;
     function onPrint(value) {
+        printPara.id = roomInput.value;
+        printPara.dateIn = dateInLabel.textContent;
+        printPara.dateOut = dateOutLabel.textContent;
         if (value == "inv") {
             if(totalLabel.textContent==null){
                 alert("请先获取账单");
