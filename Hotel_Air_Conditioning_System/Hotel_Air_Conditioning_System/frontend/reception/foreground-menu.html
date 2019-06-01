@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>前台菜单</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/layui.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/admin.css" />
+	</head>
+
+	<body>
+		<div class="page-content-wrap">
+				<form class="layui-form" action="">
+					<div class="layui-form-item">
+						<div class="layui-inline">
+							<input type="text" id="roomInput" onchange="roomChanging()" placeholder="请输入房间号" autocomplete="off" class="layui-input">
+						</div>
+						<button class="layui-btn layui-btn-normal" lay-submit="search" type="button" onclick="onInvoice()" id="invButton">账单</button>
+						<button class="layui-btn layui-btn-normal" lay-submit="search" type="button" onclick="onRDR()"id="rdrButton">详单</button>
+						<button class="layui-btn layui-btn-normal" lay-submit="search" type="button" id="printButton" onclick="onPrint()" style="display: none">打印</button>
+					</div>
+				</form>
+					<table class="layui-table" lay-even lay-skin="nob">
+						<colgroup>
+							<col width="200">
+							<col width="200">
+						</colgroup>
+						<thead>
+							<tr>
+								<th>入住时间<label id="dateInLabel"></th>
+								<th>退房时间<label id="dateOutLabel"></th>
+								<th><p id="totalElem" style="display: none"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><label id="dateIn"></label></td>
+								<td><label id="dateOut"></label></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="layui-form" style="display:none" id="div1">
+					<table class="layui-table" lay-even lay-skin="nob">
+						<colgroup>
+							<col width="800">
+						</colgroup>
+						<thead>
+							<tr>
+								<th>账单</th>
+							</tr>
+							<tr>
+							</tr>
+						</thead>
+					</table>
+					<table class="layui-table" lay-even lay-skin="nob">
+						<colgroup>
+							<col width="400">
+						</colgroup>
+						<thead>
+							<tr>
+								<th>总金额</th>
+								<th><p id="totalElem" style="display: none"><label id="totalLabel"></label></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><label id="totalLabel"></label></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="layui-form" style="display:none" id="div2">
+					<table class="layui-table" lay-even lay-skin="nob">
+						<colgroup>
+							<col width="800">
+						</colgroup>
+						<thead>
+							<tr>
+								<th>详单</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><div id="rdrDiv" style="display: none"></div></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+		</div>
+		<script src="../static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../static/js/common.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    const HOST = "../../";
+    const timeoutDur = 3000;
+
+    var totalElem = document.getElementById("totalElem");
+    var rdrDiv = document.getElementById("rdrDiv");
+    var dateInLabel = document.getElementById("dateInLabel");
+    var dateOutLabel = document.getElementById("dateOutLabel");
+    var roomInput = document.getElementById("roomInput");
+    var printButton = document.getElementById("printButton");
+    var invButton=document.getElementById("invButton");
+    var rdrButton=document.getElementById("rdrButton");
+    
+    var rdrData;
+    var totalLabel = document.getElementById("totalLabel");
+    var container = document.getElementById('rdrDiv');
+    var hot = new Handsontable(container, {
+        language: "zh-CN",
+        allowInsertColumn: false,
+        allowInsertRow: false,
+        allowRemoveColumn: false,
+        allowRemoveRow: false,
+        dataSchema: { time: null,end:null, rate: null, spd:null},
+        colHeaders: ["开始时间", "费率", "风速"],
+        columns: [
+            { data: "time", type: 'text', className: "htCenter", editor: false },
+            { data: "rate", type: 'numeric', className: "htRight", editor: false },
+            { data: "spd", type: 'text', className: "htCenter", editor: false }
+        ],
+        data: rdrData
+    });
+    function roomChanging() {
+        rdrDiv.style.display = "none";
+        totalElem.style.display = "none";
+        printButton.style.display = "none";
+        dateInLabel.value = "";
+        dateOutLabel.value = "";
+    }
+
+    var invoiceRequest = new XMLHttpRequest();
+    invoiceRequest.onreadystatechange = function () {
+        if (invoiceRequest.readyState == 4) {
+                invButton.style='background:#1e9fff';
+            if (invoiceRequest.status == 200) {
+                res = JSON.parse(invoiceRequest.responseText);
+                dateInLabel.value = res.dateIn;
+                dateOutLabel.value = res.dateOut;
+                totalLabel.value = res.total;
+                printButton.style.display = "block";
+                document.getElementById("div1").style.display="block";
+                document.getElementById("div2").style.display="none";
+            }
+            else if(invoiceRequest.status==400){
+                alert("房号不存在");
+            }
+            else{
+                console.error("invoice request error:" + invoiceRequest.status);
+                alert("系统异常，操作失败，请联系管理员");
+            }
+            invButton.removeAttribute("disabled");
+            rdrButton.removeAttribute("disabled");
+        }
+    }
+    invoiceRequest.ontimeout = function () {
+        invButton.style='background:#1e9fff';
+        alert("获取账单响应超时，请联系管理员");
+        console.error("invoice request timeout");
+        invButton.removeAttribute("disabled");
+        rdrButton.removeAttribute("disabled");
+    }
+    var invPara = new Object();
+    invPara.actorType="inf";
+    invPara.requestType="inv";
+    function onInvoice() {
+        invButton.style='background:#e2e2e2';
+        if (/^\s*$/.test(roomInput.value)) {
+            alert("房号不能为空");
+        }
+        else {
+            invButton.disabled=true;
+            rdrButton.disabled=true;
+            printButton.style.display="block";
+            invPara.roomID=roomInput.value;
+            invoiceRequest.open("POST", HOST, true);
+            invoiceRequest.timeout = timeoutDur;
+            invoiceRequest.send(JSON.stringify(invPara));
+        }
+    }
+
+
+    var rdrRequest = new XMLHttpRequest();
+    rdrRequest.onreadystatechange = function () {
+        if (rdrRequest.readyState == 4) {
+                rdrButton.style='background:#1e9fff';
+            if (rdrRequest.status == 200) {
+                res = JSON.parse(rdrRequest.responseText);
+                dateInLabel.value = res.dateIn;
+                dateOutLabel.value = res.dateOut;
+                rdrData = res.rdrList;
+                printButton.style.display = "block";
+                document.getElementById("div2").style.display="block";
+                document.getElementById("div1").style.display="none";
+            }
+            else if(rdrRequest.status ==400){
+                alert("房号不存在");
+            }
+            else {
+                console.error("rdr request error:" + rdrRequest.status);
+                alert("系统异常，操作失败，请联系管理员");
+            }
+            invButton.removeAttribute("disabled");
+            rdrButton.removeAttribute("disabled");
+        }
+    }
+    rdrRequest.ontimeout = function () {
+        rdrButton.style='background:#1e9fff';
+        alert("获取详单响应超时，请联系管理员");
+        console.error("rdr request timeout!");
+        invButton.removeAttribute("disabled");
+        rdrButton.removeAttribute("disabled");
+    }
+    var rdrPara = new Object();
+    rdrPara.actorType="inf";
+    rdrPara.requestType="rdr";
+    function onRDR() {
+        rdrButton.style='background:#e2e2e2';
+        if (/^\s*$/.test(roomInput.value)) {
+            alert("房号不能为空");
+        }
+        else {
+            invButton.disabled=true;
+            rdrButton.disabled=true;
+            rdrPara.roomID=roomInput.value;
+            rdrRequest.open("POST", HOST, true);
+            rdrRequest.timeout = timeoutDur;
+            rdrRequest.send(JSON.stringify(rdrPara));
+        }
+    }
+
+
+    var printRequest = new XMLHttpRequest();
+    printRequest.onreadystatechange = function () {
+        if (printRequest.readyState == 4) {
+            if (printRequest.status != 200) {
+                console.error("print request error:" + printRequest.status);
+                alert("系统异常，操作失败，请联系管理员");
+            }
+            printButton.style='background:#1e9fff';
+        }
+    }
+    printRequest.ontimeout = function () {
+        printButton.style='background:#1e9fff';
+        alert("打印响应超时，请联系管理员");
+        console.error("print request timeout!");
+        invButton.removeAttribute("disabled");
+        rdrButton.removeAttribute("disabled");
+    }
+    var printPara = new Object();
+    printPara.actorType="inf";
+    printPara.requestType="print";
+    printPara.id=roomInput.value;
+    printPara.dateIn=dateInLabel.value;
+    printPara.dateOut=dateOutLabel.value;
+    function onPrint(){
+        printButton.style='background:#e2e2e2'
+        printRequest.open("POST", HOST, true);
+        printRequest.timeout = timeoutDur;
+        if (rdrDiv.style.display == "none") {
+            printPara.type="inv";
+            printPara.text=totalLabel.value;
+        }
+        else {
+            printPara.type="rdr";
+            printPara.text=JSON.stringify(rdrData);
+        }
+        printRequest.send(JSON.stringify(printPara));
+    }
+</script>
+	</body>
+
+</html>

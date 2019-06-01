@@ -26,7 +26,7 @@ def cors_resp(resp_text):
 @app.route('/', methods=['GET','POST'])
 def re_route():
     if request.method == 'GET':
-        return redirect('./frontend/home.html')
+        return redirect('./frontend/index.html')
     else:
         data = request.data
         params = json.loads(data)
@@ -43,7 +43,7 @@ def re_route():
 
 
 ## 资源文件下载
-@app.route('/frontend/resource/<path:filename>')
+@app.route('/frontend/static/<path:filename>')
 def resource(filename):
     dirpath = os.path.join(app.root_path, "frontend/static") #定位至后台程序所在目录的static文件下
     return send_from_directory(dirpath, filename, as_attachment=True)
@@ -56,33 +56,43 @@ def download(filename):
 
 
 ## 页面路由
+@app.route('/frontend/<path:pagename>')
+def page(pagename):
+    path = os.path.join(app.root_path,"frontend/"+pagename)
+    f = open(path, encoding='utf-8')
+    return f.read()
+# # 主页1
+# @app.route('/frontend/index.html')
+# def home_page1():
+#     f = open(app.root_path+"\\frontend\\index.html", encoding='utf-8')
+#     return f.read()
 
-# 主页
-@app.route('/frontend/home.html')
-def home_page():
-    f = open(app.root_path+"\\frontend\\home.html", encoding='utf-8')
-    return f.read()
-# 顾客
-@app.route('/frontend/client/client.html')
-def client_page():
-    f = open(app.root_path+"\\frontend\\client\\client.html", encoding='utf-8')
-    return f.read()
+# # 主页
+# @app.route('/frontend/home.html')
+# def home_page():
+#     f = open(app.root_path+"\\frontend\\home.html", encoding='utf-8')
+#     return f.read()
+# # 顾客
+# @app.route('/frontend/client/client.html')
+# def client_page():
+#     f = open(app.root_path+"\\frontend\\client\\client.html", encoding='utf-8')
+#     return f.read()
 
-# 前台
-@app.route('/frontend/reception/reception.html')
-def reception_page():
-    f = open(app.root_path+"\\frontend\\reception\\reception.html", encoding='utf-8')
-    return f.read()
-# 管理员
-@app.route('/frontend/supervisor/supervisor.html')
-def supervisor_page():
-    f = open(app.root_path+"\\frontend\\supervisor\\supervisor.html", encoding='utf-8')
-    return f.read()
-# 经理
-@app.route('/frontend/manager/manager.html')
-def manager_page():
-    f = open(app.root_path+"\\frontend\\manager\\manager.html", encoding='utf-8')
-    return f.read()
+# # 前台
+# @app.route('/frontend/reception/reception.html')
+# def reception_page():
+#     f = open(app.root_path+"\\frontend\\reception\\reception.html", encoding='utf-8')
+#     return f.read()
+# # 管理员
+# @app.route('/frontend/supervisor/supervisor.html')
+# def supervisor_page():
+#     f = open(app.root_path+"\\frontend\\supervisor\\supervisor.html", encoding='utf-8')
+#     return f.read()
+# # 经理
+# @app.route('/frontend/manager/manager.html')
+# def manager_page():
+#     f = open(app.root_path+"\\frontend\\manager\\manager.html", encoding='utf-8')
+#     return f.read()
 
 
 
