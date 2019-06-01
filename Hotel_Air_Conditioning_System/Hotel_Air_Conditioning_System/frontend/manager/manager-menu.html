@@ -53,12 +53,6 @@
 			var untilInput = document.getElementById("untilInput");
 			var confirmButton = document.getElementById("confirmButton");
 			var printButton=document.getElementById("printButton");
-			function formatDate(date){
-				return date.getFullYear()+'-'+date.getMonth()+'-'+date.getDay()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
-			}
-			var date=new Date();
-			untilInput.value = formatDate(date);
-
 			var reportData;
 			var container = document.getElementById('reportDiv');
 			var hot = new Handsontable(container, {
@@ -85,6 +79,8 @@
 				],
 				data: []
 			});
+			var date=new Date();
+			untilInput.value = date.toISOString();
 
 			var reportRequest = new XMLHttpRequest();
 			reportRequest.onreadystatechange = function () {
@@ -126,10 +122,7 @@
 			var printRequest = new XMLHttpRequest();
 			printRequest.onreadystatechange = function () {
 				if (printRequest.readyState == 4) {
-					if (printRequest.status == 200) {
-						window.open(HOST+printRequest.responseText);
-					}
-					else{
+					if (printRequest.status != 200) {
 						console.error("print report status error:" + printRequest.status);
 						alert("打印报表失败");
 					}

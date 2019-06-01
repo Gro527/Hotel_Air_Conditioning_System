@@ -6,8 +6,8 @@ import os
 
 from datetime import datetime
 from flask import request,send_from_directory, redirect, request
+from Hotel_Air_Conditioning_System.Controller import *
 from Hotel_Air_Conditioning_System import app
-from Hotel_Air_Conditioning_System.controller import *
 from Hotel_Air_Conditioning_System import dao
 import json
 from Hotel_Air_Conditioning_System.impl import gDict

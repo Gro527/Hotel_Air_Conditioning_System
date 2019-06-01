@@ -1,5 +1,5 @@
 ## 对应角色：前台
-from Hotel_Air_Conditioning_System.controller.CreateInvoiceController import CreateInvoiceController
+from Hotel_Air_Conditioning_System.Controller.CreateInvoiceController import CreateInvoiceController
 from Hotel_Air_Conditioning_System.impl import Service
 from Hotel_Air_Conditioning_System.dao.iInvoiceDAO import iInvoiceDAO
 import json

@@ -17,7 +17,7 @@
             <div class="m-login-warp">
                 <div class="layui-form">
                     <div class="layui-form-item">
-                        <input id="roomInput" autofocus="autofocus" type="text" placeholder="房号" autocomplete="off" class="layui-input" onchange="setRoom(this.value)">
+                        <input id="roomInput" autofocus="autofocus" type="text" placeholder="房号" autocomplete="off" class="layui-input">
                     </div>
                     <div class="layui-form-item m-login-btn">
                         <div class="layui-inline">
@@ -129,9 +129,9 @@
                 }
                 curTmpLabel.textContent = data.curTmp;
                 switch (data.spd) {
-                    case "L": curSpdLabel.textContent = "低"; break;
-                    case "M": curSpdLabel.textContent = "中"; break;
-                    case "H": curSpdLabel.textContent = "高"; break;
+                    case "L": curSpdLabel.textContent = "低";break;
+                    case "M": curSpdLabel.textContent = "中";break;
+                    case "H": curSpdLabel.textContent = "高";break;
                 }
                 totalLabel.textContent = data.total;
             }
@@ -148,11 +148,12 @@
     var refreshPara = new Object();
     refreshPara.actorType = "cos";
     refreshPara.requestType = "ref";
+    refreshPara.roomID = roomID;
+    var refreshStr = JSON.stringify(refreshPara)
     function refresh() {
-        refreshPara.roomID = roomID;
         refreshRequest.open("POST", HOST, true);
         refreshRequest.timeout = timeoutDur;
-        refreshRequest.send(JSON.stringify(refreshPara));
+        refreshRequest.send(refreshStr);
     }
 
     var turnOnRequest = new XMLHttpRequest();
@@ -175,6 +176,8 @@
     var turnOnPara = new Object();
     turnOnPara.actorType = "cos";
     turnOnPara.requestType = "on";
+    turnOnPara.roomID = roomID;
+    var turnOnStr = JSON.stringify(turnOnPara);
     var turnOffRequest = new XMLHttpRequest();
     turnOffRequest.onreadystatechange = function () {
         if (turnOffRequest.readyState == 4) {
@@ -195,18 +198,18 @@
     var turnOffPara = new Object();
     turnOffPara.actorType = "cos";
     turnOffPara.requestType = "off";
+    turnOffPara.roomID = roomID;
+    var turnOffStr = JSON.stringify(turnOffPara);
     function onSwitch() {
         if (switchButton.textContent == "开启") {
-            turnOnPara.roomID = roomID;
             turnOnRequest.open("POST", HOST, true);
             turnOnRequest.timeout = timeoutDur;
-            turnOnRequest.send(JSON.stringify(turnOnPara));
+            turnOnRequest.send(turnOnStr);
         }
         else {
-            turnOffPara.roomID = roomID;
             turnOffRequest.open("POST", HOST, true);
             turnOffRequest.timeout = timeoutDur;
-            turnOffRequest.send(JSON.stringify(turnOffPara));
+            turnOffRequest.send(turnOffStr);
         }
     }
 
@@ -279,7 +282,6 @@
             alert("房号不能为空");
         }
         else{
-            setInterval(refresh(),refreshIntv);
             roomID=roomInput.value;
             document.getElementById("loginDiv").remove();
             document.getElementById("uiDiv").style.display="block";
