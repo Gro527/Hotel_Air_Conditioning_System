@@ -56,6 +56,7 @@ class Service(object):
             if ret[-1].action_type != "off":
                 print("222")
                 irdao.AddRecord(room_id, "0",  "off")
+                ret = irdao.GetRecord(invoice_id)
         # 若无date_out，写dateout
         if date_out == None:
             date_out = datetime.now().replace(microsecond=0)

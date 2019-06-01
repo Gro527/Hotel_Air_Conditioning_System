@@ -148,12 +148,11 @@
     var refreshPara = new Object();
     refreshPara.actorType = "cos";
     refreshPara.requestType = "ref";
-    refreshPara.roomID = roomID;
-    var refreshStr = JSON.stringify(refreshPara)
     function refresh() {
+        refreshPara.roomID = roomID;
         refreshRequest.open("POST", HOST, true);
         refreshRequest.timeout = timeoutDur;
-        refreshRequest.send(refreshStr);
+        refreshRequest.send(JSON.stringify(refreshPara));
     }
 
     var turnOnRequest = new XMLHttpRequest();
@@ -176,8 +175,6 @@
     var turnOnPara = new Object();
     turnOnPara.actorType = "cos";
     turnOnPara.requestType = "on";
-    turnOnPara.roomID = roomID;
-    var turnOnStr = JSON.stringify(turnOnPara);
     var turnOffRequest = new XMLHttpRequest();
     turnOffRequest.onreadystatechange = function () {
         if (turnOffRequest.readyState == 4) {
@@ -198,18 +195,18 @@
     var turnOffPara = new Object();
     turnOffPara.actorType = "cos";
     turnOffPara.requestType = "off";
-    turnOffPara.roomID = roomID;
-    var turnOffStr = JSON.stringify(turnOffPara);
     function onSwitch() {
         if (switchButton.textContent == "开启") {
+            turnOnPara.roomID = roomID;
             turnOnRequest.open("POST", HOST, true);
             turnOnRequest.timeout = timeoutDur;
-            turnOnRequest.send(turnOnStr);
+            turnOnRequest.send(JSON.stringify(turnOnPara));
         }
         else {
+            turnOffPara.roomID = roomID;
             turnOffRequest.open("POST", HOST, true);
             turnOffRequest.timeout = timeoutDur;
-            turnOffRequest.send(turnOffStr);
+            turnOffRequest.send(JSON.stringify(turnOffPara));
         }
     }
 
@@ -235,10 +232,10 @@
     var chgTmpPara = new Object();
     chgTmpPara.actorType = "cos";
     chgTmpPara.requestType = "tmp";
-    chgTmpPara.roomID = roomID;
     function onTmpSubmit() {
+        chgTmpPara.roomID = roomID;
         var tmp = parseFloat(trgTmpInput.value);
-        if (isNaN(tmp)) {
+        if (!isNaN(tmp)) {
             chgTmpPara.trg = tmp;
             chgTmpRequest.open("POST", HOST, true);
             chgTmpRequest.timeout = timeoutDur;
@@ -268,9 +265,9 @@
     var chgSpdPara = new Object();
     chgSpdPara.actorType = "cos";
     chgSpdPara.requestType = "spd";
-    chgSpdPara.roomID = roomID;
     chgSpdPara.trg = "";
     function onSpdChg(value) {
+        chgSpdPara.roomID = roomID;
         chgSpdPara.trg = value;
         chgTmpRequest.open("POST", HOST, true);
         chgTmpRequest.timeout = timeoutDur;
@@ -285,6 +282,8 @@
             roomID=roomInput.value;
             document.getElementById("loginDiv").remove();
             document.getElementById("uiDiv").style.display="block";
+            refresh();
+            setInterval(refresh,refreshIntv);
         }
     }
 
