@@ -1,0 +1,138 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <script src="../handsontable/dist/handsontable.full.min.js"></script>
+    <link href="../handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+    <script src="../handsontable/dist/languages/zh-CN.js"></script>
+</head>
+
+
+<body>
+    <div id="inputDiv"> <!--用户输入块-->
+        <label>类型：</label>
+        <select id="typeSelect" onchange="hidePrintButton()">
+            <option value="D" selected="selected">日报</option>
+            <option value="W">周报</option>
+            <option value="M">月报</option>
+            <option value="A">年报</option>
+        </select>
+        <label>截止时间：</label><input id="untilInput" onchange="hidePrintButton()">
+        <button id="confirmButton" onclick="onConfirm()">确认</button>
+        <button id="printButton" onclick="onPrint()" hidden>打印</button>
+    </div>
+    <div id="reportDiv"></div> <!--数据表格-->
+</body>
+<script>
+    const HOST = "../../";
+    const timeoutDur = 3000;
+
+    var inputDiv = document.getElementById("inputDiv");
+    var typeSelect = document.getElementById("typeSelect");
+    var untilInput = document.getElementById("untilInput");
+    var confirmButton = document.getElementById("confirmButton");
+    var printButton=document.getElementById("printButton");
+    untilInput.value = new Date();
+
+    var reportData;
+    var container = document.getElementById('reportDiv');
+    var hot = new Handsontable(container, {
+        language: "zh-CN",
+        filters: true,
+        autoColumnSize: true,
+        multiColumnSorting: true,
+        allowInsertColumn: false,
+        allowInsertRow: false,
+        allowRemoveColumn: true,
+        allowRemoveRow: false,
+        dropdownMenu: ['filter_by_condition', 'filter_by_value', 'filter_action_bar'],
+        dataSchema: { roomID: null, swh: null, time: null, sch: null, rdr: null, chgTmp: null, chgSpd: null, total: null },
+        colHeaders: ["房号", "开关次数", "空调使用时长", "调度次数", "详单数", "调温次数", "调风速次数", "此房间的累计消费"],
+        columns: [
+            { data: "roomID", type: 'text', className: "htCenter", editor: false },
+            { data: "swh", type: 'numeric', className: "htRight", editor: false },
+            { data: "time", type: 'numeric', className: "htRight", editor: false },
+            { data: "sch", type: 'numeric', className: "htRight", editor: false },
+            { data: "rdr", type: 'numeric', className: "htRight", editor: false },
+            { data: "chgTmp", type: 'numeric', className: "htRight", editor: false },
+            { data: "chgSpd", type: 'numeric', className: "htRight", editor: false },
+            { data: "total", type: 'numeric', className: "htRight", editor: false }
+        ],
+        data: []
+    });
+
+    var reportRequest = new XMLHttpRequest();
+    reportRequest.onreadystatechange = function () {
+        if (reportRequest.readyState == 4) {
+            if (reportRequest.status == 200) {
+                reportData = JSON.parse(reportRequest.responseText);
+                hot.loadData(reportData);
+                printButton.removeAttribute("hidden");
+            }
+            else {
+                console.error("get report status error:" + reportRequest.status);
+                alert("获取报表失败");
+            }
+            inputDiv.removeAttribute("disabled");
+        }
+    }
+    reportRequest.ontimeout = function () {
+        alert("获取报表响应超时");
+        console.error("获取报表超时");
+        inputDiv.removeAttribute("disabled");
+    }
+    var reportPara = new Object();
+    reportPara.actorType = "mng";
+    reportPara.requestType = "rep"
+    function onConfirm() {
+        if (/^\s*$/.test(untilInput.value)) {
+            alert("截止时间不能为空");
+        }
+        else {
+            inputDiv.disabled = true;
+            reportPara.type=typeSelect.value;
+            reportPara.until=untilInput.value;
+            reportRequest.open("POST", HOST, true);
+            reportRequest.timeout = timeoutDur;
+            reportRequest.send(JSON.stringify(reportPara));
+        }
+    }
+
+    var printRequest = new XMLHttpRequest();
+    printRequest.onreadystatechange = function () {
+        if (printRequest.readyState == 4) {
+            if (printRequest.status != 200) {
+                console.error("print report status error:" + printRequest.status);
+                alert("打印报表失败");
+            }
+            inputDiv.removeAttribute("disabled");
+        }
+    }
+    printRequest.ontimeout = function () {
+        alert("打印报表响应超时");
+        console.error("打印报表超时");
+        inputDiv.removeAttribute("disabled");
+    }
+    var printPara=new Object();
+    printPara.actorType="mng";
+    printPara.requestType="print";
+    function onPrint() {
+        if (/^\s*$/.test(untilInput.value)) {
+            alert("截止时间不能为空");
+        }
+        else {
+            inputDiv.disabled = true;
+            printPara.type=typeSelect.value;
+            printPara.until=untilInput.value;
+            printPara.text=JSON.stringify(reportData);
+            printRequest.open("POST", HOST, true);
+            printRequest.timeout = timeoutDur;
+            printRequest.send(JSON.stringify(printPara));
+        }
+    }
+    function hidePrintButton(){
+        printButton.hidden=true;
+    }
+</script>
+
+</html>

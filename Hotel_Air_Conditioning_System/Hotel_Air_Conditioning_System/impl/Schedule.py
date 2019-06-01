@@ -14,18 +14,21 @@ from Hotel_Air_Conditioning_System.dao.iInvoiceDAO import iInvoiceDAO
 def Timeout(room_id):
     print(room_id+': timeout')
     sche = gDict["schedule"]
+    wait = sche.SearchWaiting(room_id)
     # 若有空闲服务，直接开始服务
     if len(sche.serv_queue) < sche.max_service:
         sche.WaitingToServing(room_id)
+        iRecordDAO().AddRecord(room_id, wait.speed, "on")
+        return
     # 若无空闲服务
     # 当前房间风速需至少大于等于一个正在服务的房间风速，才能进入服务队列
-    wait = sche.SearchWaiting(room_id)
-    if wait == None:
-        return
+    # wait = sche.SearchWaiting(room_id)
+    # if wait == None:
+    #     return
     least_service_id = sche.GetLeastPriorService()
     if wait.priority >= sche.GetSpeed(least_service_id)[1]:
+        iRecordDAO().AddRecord(sche.GetRoomId(least_service_id), sche.GetSpeed(least_service_id)[0], "wait")
         sche.ReleaseService(least_service_id)
-        iRecordDAO().AddRecord(sche.GetRoomId(least_service_id), sche.GetSpeed(least_service_id)[0], "off")
         sche.WaitingToServing(room_id)
         iRecordDAO().AddRecord(room_id, wait.speed, "on")
 
@@ -207,16 +210,17 @@ class Schedule(object):
                     req.SetSpeed(trg)
                     ## 取代优先级最低的当前服务
                     least = self.GetLeastPriorService()
-                    if self.GetSpeed(least)[1] < req.priority:
-                        self.ReleaseService(least)
-                        iRecordDAO().AddRecord(least.room_id, least.speed, "off")
-                        self.WaitingToServing(req.room_id)
-                        iRecordDAO().AddRecord(room_id, trg, "change_speed")
-                        iRecordDAO().AddRecord(room_id, trg, "on")
-                        return {"state":"OK"}
-                    else:
-                        iRecordDAO().AddRecord(room_id, trg, "change_speed")
-                        return {"state":"Waiting"}
+                    if least != None:
+                        if self.GetSpeed(least)[1] < req.priority:
+                            self.ReleaseService(least)
+                            iRecordDAO().AddRecord(least.room_id, least.speed, "wait")
+                            self.WaitingToServing(req.room_id)
+                            iRecordDAO().AddRecord(room_id, trg, "change_speed")
+                            iRecordDAO().AddRecord(room_id, trg, "on")
+                            return {"state":"OK"}
+                        else:
+                            iRecordDAO().AddRecord(room_id, trg, "change_speed")
+                            return {"state":"Waiting"}
         ## 当前房间未在服务,未在等待，且有空余服务对象资源
         if len(self.serv_queue) < self.max_service:
             if req_type == 'on':
@@ -239,13 +243,16 @@ class Schedule(object):
                 # 找出优先级最低的服务，若当前服务优先级高于其，则取而代之，反之加入等待队列
                 least = self.GetLeastPriorService()
                 if self.GetSpeed(least)[1] < 2:
+                    print("房间号：",least.room_id,"优先级过低，进入等待")
+                    iRecordDAO().AddRecord(least.room_id, least.speed, "wait")
                     self.ReleaseService(least)
-                    iRecordDAO().AddRecord(least.room_id, least.speed, "off")
                     self.NewService(room_id, 'M')
                     iRecordDAO().AddRecord(room_id, "M", "on")
                     return {"state":"OK"}
                 else:
+                    gDict["rooms"].new_room(room_id, gDict["settings"].get("default_targetTemp",24))
                     self.NewWaiting(room_id, 'M')
+                    iRecordDAO().AddRecord(room_id, 'M', "wait")
                     return {"state":"Waiting"}
             elif req_type == 'off':
                 return {"state":"OK"}

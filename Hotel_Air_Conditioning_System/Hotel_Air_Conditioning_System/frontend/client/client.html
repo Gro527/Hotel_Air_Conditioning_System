@@ -2,16 +2,15 @@
 
 <head>
     <meta charset="UTF-8" />
-    <script src="../resource/handsontable/dist/handsontable.full.min.js"></script>
-    <link href="../resource/handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">  
-    <script src="../resource/handsontable/dist/languages/zh-CN.js"></script>
 </head>
 
 <body>
+    <p>房号<input id="roomInput" value="303"></p>
     <p>状态：<label id="statusLabel"></label>
     </p>
     <p>当前温度：<label id="curTmpLabel"></label>
     </p>
+    <p>总消费：<label id="totalLable"></label></p>
     <p>目标温度：<label id="trgTmpLabel"></label>
         <input id="trgTmpInput" />
         <button id="chgTmpButton" type="button" onclick="onTmpSubmit()">确定</button>
@@ -19,31 +18,41 @@
     <p>风速：<label id="curSpdLabel"></label>
         <p>
             <label>高</label>
-            <input type="radio" id="spdHRadio" name="spdRadio" value="H" onclick="onSpdChg(this.value)"> 
+            <input type="radio" id="spdHRadio" name="spdRadio" value="H" onclick="onSpdChg(this.value)">
             <label>中</label>
             <input type="radio" id="spdMRadio" name="spdRadio" value="M" onclick="onSpdChg(this.value)">
             <label>低</label>
             <input type="radio" id="spdLRadio" name="spdRadio" value="L" onclick="onSpdChg(this.value)">
         </p>
     </p>
-    <p>总消费：<label id="totalLable"></label></p>
+    
 
     <button id="switchButton" type="button" onclick="onSwitch()">开启</button>
 </body>
 <script>
     const HOST = "../../";
+    const timeoutDur = 3000;
+    const refreshIntv = 5000;
 
+
+    var roomInput =document.getElementById("roomInput");
     var statusLabel = document.getElementById("statusLabel");
     var curSpdLabel = document.getElementById("curSpdLabel");
     var curTmpLabel = document.getElementById("curTmpLabel");
-    var spdHRadio=document.getElementById("spdHRadio");
-    var spdMRadio=document.getElementById("spdMRadio");
-    var spdLRadio=document.getElementById("spdLRadio");
+    var spdHRadio = document.getElementById("spdHRadio");
+    var spdMRadio = document.getElementById("spdMRadio");
+    var spdLRadio = document.getElementById("spdLRadio");
 
     var trgTmpInput = document.getElementById("trgTmpInput");
     var chgTmpButton = document.getElementById("chgTmpButton");
     var totalLabel = document.getElementById("totalLabel");
     var switchButton = document.getElementById("switchButton");
+
+    var roomID = "303";
+
+    function setRoom(value){
+        roomID=value;
+    }
 
     var refreshRequest = new XMLHttpRequest();
     refreshRequest.onreadystatechange = function () {
@@ -58,9 +67,9 @@
                 }
                 curTmpLabel.textContent = data.curTmp;
                 switch (data.spd) {
-                    case "L":curSpdLabel.textContent = "低";
-                    case "M":curSpdLabel.textContent = "中";
-                    case "H":curSpdLabel.textContent = "高";
+                    case "L": curSpdLabel.textContent = "低";
+                    case "M": curSpdLabel.textContent = "中";
+                    case "H": curSpdLabel.textContent = "高";
                 }
                 totalLabel = data.total;
             }
@@ -77,72 +86,73 @@
     var refreshPara = new Object();
     refreshPara.actorType = "cos";
     refreshPara.requestType = "ref";
-    refreshPara.roomID = "1001";
+    refreshPara.roomID = roomID;
     var refreshStr = JSON.stringify(refreshPara)
     function refresh() {
         refreshRequest.open("POST", HOST, true);
-        refreshRequest.timeout = 3000;
+        refreshRequest.timeout = timeoutDur;
         refreshRequest.send(refreshStr);
     }
-    var refreshInterval = setInterval("refresh()", 10000);
+    var refreshInterval = setInterval("refresh()", refreshIntv);
 
     var turnOnRequest = new XMLHttpRequest();
     turnOnRequest.onreadystatechange = function () {
         if (turnOnRequest.readyState == 4) {
             if (turnOnRequest.status == 200) {
                 switchButton.textContent = "关闭";
+                refresh();
             }
             else {
                 console.error("turnOn status error:" + turnOnRequest.status);
                 alert("开机请求失败");
             }
-            switchButton.disabled = false;
+            switchButton.removeAttribute("disabled");
         }
     }
     turnOnRequest.ontimeout = function () {
         alert("开机响应超时，请联系管理员");
         console.error("开机超时");
-        switchButton.disabled = false;
+        switchButton.removeAttribute("disabled");
     }
     var turnOnPara = new Object();
     turnOnPara.actorType = "cos";
     turnOnPara.requestType = "on";
-    turnOnPara.roomID = "1001";
+    turnOnPara.roomID = roomID;
     var turnOnStr = JSON.stringify(turnOnPara);
     var turnOffRequest = new XMLHttpRequest();
     turnOffRequest.onreadystatechange = function () {
         if (turnOffRequest.readyState == 4) {
-            if (turnOffRequest.status) {
+            if (turnOffRequest.status == 200) {
                 switchButton.textContent = "开启";
+                refresh();
             }
             else {
                 console.error("turnOff status error:" + turnOffRequest.status);
                 alert("关机请求失败");
             }
-            switchButton.disabled = false;
+            switchButton.removeAttribute("disabled");
         }
     }
     turnOffRequest.ontimeout = function () {
         alert("关机响应超时，请联系管理员");
         console.error("关机超时");
-        switchButton.disabled = false;
+        switchButton.removeAttribute("disabled");
     }
     var turnOffPara = new Object();
     turnOffPara.actorType = "cos";
     turnOffPara.requestType = "off";
-    turnOffPara.roomID = "1001";
+    turnOffPara.roomID = roomID;
     var turnOffStr = JSON.stringify(turnOffPara);
     function onSwitch() {
+        switchButton.disabled = true;
         if (switchButton.textContent == "开启") {
-            switchButton.disabled = true;
             turnOnRequest.open("POST", HOST, true);
-            turnOnRequest.timeout = 3000;
+            turnOnRequest.timeout = timeoutDur;
             turnOnRequest.send(turnOnStr);
         }
         else {
-            switchButton.disabled = true;
             turnOffRequest.open("POST", HOST, true);
-            turnOffRequest.timeout = 3000;
+            turnOffRequest.timeout = timeoutDur;
             turnOffRequest.send(turnOffStr);
         }
     }
@@ -150,68 +160,94 @@
     var chgTmpRequest = new XMLHttpRequest();
     chgTmpRequest.onreadystatechange = function () {
         if (chgTmpRequest.readyState == 4) {
-            if (chgTmpRequest.status != 200) {
+            if (chgTmpRequest.status == 500) {
+                alert("温度超过范围");
+            }
+            else if (chgTmpRequest.status == 200) {
+                trgTmpInput.value="";
+            }
+            else{
                 console.error("chgTmp status error:" + chgTmpRequest.status);
                 alert("调温失败");
             }
-            trgTmpInput.disabled = false;
-            chgTmpButton.disabled = false;
+            trgTmpInput.removeAttribute("disabled");
+            chgTmpButton.removeAttribute("disabled");
         }
     }
     chgTmpRequest.ontimeout = function () {
         alert("调温响应超时，请联系管理员");
         console.error("调温超时");
-        trgTmpInput.disabled = false;
-        chgTmpButton.disabled = false;
+        trgTmpInput.removeAttribute("disabled");
+        chgTmpButton.removeAttribute("disabled");
     }
     var chgTmpPara = new Object();
     chgTmpPara.actorType = "cos";
     chgTmpPara.requestType = "tmp";
-    chgTmpPara.roomID = "1001";
+    chgTmpPara.roomID = roomID;
     function onTmpSubmit() {
-        trgTmpInput.disabled = true;
-        chgTmpButton.disabled = true;
-        
-        chgTmpPara.trg = parseFloat(trgTmpInput.value);
-        chgTmpRequest.open("POST", HOST, true);
-        chgTmpRequest.timeout = 3000;
-        chgTmpRequest.send(JSON.stringify(chgTmpPara));
+        var tmp=parseFloat(trgTmpInput.value);
+        if(isNaN(tmp)){
+            chgTmpPara.trg = tmp;
+            trgTmpInput.disabled = true;
+            chgTmpButton.disabled = true;
+            chgTmpRequest.open("POST", HOST, true);
+            chgTmpRequest.timeout = timeoutDur;
+            chgTmpRequest.send(JSON.stringify(chgTmpPara));
+        }
+        else{
+            alert("温度格式有误");
+        }
     }
 
     var chgSpdRequest = new XMLHttpRequest();
     chgSpdRequest.onreadystatechange = function () {
         if (chgSpdRequest.readyState == 4) {
             if (chgSpdRequest.status == 200) {
-                curSpdLabel.textContent=chgSpdPara.trg;
+                switch (chgTmpPara.trg) {
+                    case "H":
+                        spdMRadio.removeAttribute("disabled");
+                        spdLRadio.removeAttribute("disabled");
+                        break;
+                    case "M":
+                        spdHRadio.removeAttribute("disabled");
+                        spdLRadio.removeAttribute("disabled");
+                        break;
+                    case "L":
+                        spdHRadio.removeAttribute("disabled");
+                        spdMRadio.removeAttribute("disabled");
+                        break;
+
+                }
+                curSpdLabel.textContent = chgSpdPara.trg;
             }
             else {
                 console.error("chgSpd status error:" + chgSpdRequest.status);
                 alert("调风速失败");
+                spdHRadio.removeAttribute("disabled");
+                spdMRadio.removeAttribute("disabled");
+                spdLRadio.removeAttribute("disabled");
             }
-            spdHRadio.disabled=false;
-            spdMRadio.disabled=false;
-            spdLRadio.disabled=false;
         }
     }
     chgSpdRequest.ontimeout = function () {
         alert("调风速响应超时，请联系管理员");
         console.error("调风速超时");
-        spdHRadio.disabled=false;
-        spdMRadio.disabled=false;
-        spdLRadio.disabled=false;
+        spdHRadio.removeAttribute("disabled");
+        spdMRadio.removeAttribute("disabled");
+        spdLRadio.removeAttribute("disabled");
     }
     var chgSpdPara = new Object();
     chgSpdPara.actorType = "cos";
     chgSpdPara.requestType = "spd";
-    chgSpdPara.roomID = "1001";
+    chgSpdPara.roomID = roomID;
     chgSpdPara.trg = "";
     function onSpdChg(value) {
-        spdHRadio.disabled=true;
-        spdMRadio.disabled=true;
-        spdLRadio.disabled=true;
-        chgSpdPara.trg =value;
+        spdHRadio.disabled = true;
+        spdMRadio.disabled = true;
+        spdLRadio.disabled = true;
+        chgSpdPara.trg = value;
         chgTmpRequest.open("POST", HOST, true);
-        chgTmpRequest.timeout = 3000;
+        chgTmpRequest.timeout = timeoutDur;
         chgTmpRequest.send(JSON.stringify(chgSpdPara));
     }    
 </script>

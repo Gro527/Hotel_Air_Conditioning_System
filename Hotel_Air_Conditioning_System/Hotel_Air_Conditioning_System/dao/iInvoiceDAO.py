@@ -11,6 +11,8 @@ class iInvoiceDAO(object):
         # return ret[0].date_in
     def GetLastInvoiceId(self, room_id):
         last_invoice = session.query(iInvoice).filter_by(room_id = room_id).order_by(iInvoice.date_in.desc()).first()
+        if last_invoice == None:
+            return None
         return last_invoice.id
     def AddInvoice(self, room_id):
         date_in = datetime.date.today()
@@ -27,3 +29,6 @@ class iInvoiceDAO(object):
     def SetDateOut(self, invoice_id, date_out):
         session.query(iInvoice).filter_by(id = invoice_id).update({"date_out":date_out})
         session.commit()
+    def GetInvoiceByDate(self, start_date, end_date):
+        ret = session.query(iInvoice).filter(iInvoice.date_in >= start_date, iInvoice.date_out <= end_date).all()
+        return ret

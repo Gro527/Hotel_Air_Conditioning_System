@@ -36,7 +36,7 @@ class iRecord(base):
     start_time = Column(DateTime)
     trg_tmp = Column(Float)
     speed = Column(Enum("H","M","L","0"))
-    action_type = Column(Enum("on", "change_temp", "change_speed", "off", name="action_type"))
+    action_type = Column(Enum("on", "change_temp", "change_speed", "off", "hold", "wait", name="action_type"))
     fee_rate = Column(Float)
     
 

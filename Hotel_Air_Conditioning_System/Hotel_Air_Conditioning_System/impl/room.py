@@ -54,4 +54,5 @@ class RoomList(object):
         for room in self.list_room:
             if room.room_id == room_id:
                 return room
+        print("room not found, room_id: ", room_id)
         return None

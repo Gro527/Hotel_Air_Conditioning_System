@@ -15,8 +15,28 @@ class Service(object):
     def SetTemp(self, temp):
         self.trg_tmp = temp
         gDict["rooms"].get_room(self.room_id).set_trgTmp(temp)
-    def ShowBill(self):
-        pass
+    def ShowBill(self, invoice_id):
+        iidao = iInvoiceDAO.iInvoiceDAO()
+        irdao = iRecordDAO.iRecordDAO()
+        rec_list = irdao.GetRecord(invoice_id)
+        num = 0
+        total_price = 0
+        current_f_r = 0
+        time_s = datetime.now()
+        for rec in rec_list:
+            if(num == 0):   # 第一条记录
+                time_s = rec.start_time
+                current_f_r = rec.fee_rate
+            else:
+                duration = (rec.start_time - time_s).seconds
+                total_price = total_price + (duration * current_f_r)
+                time_s = rec.start_time
+                current_f_r = rec.fee_rate
+            num = num + 1
+        # 查价格时空调仍在运行
+        if current_f_r != 0:
+            total_price += (datetime.now() - time_s).seconds * current_f_r
+        return total_price
 
     # 生成rdrList并计算总价
     def ShowDetailBill(self,room_id):
@@ -42,7 +62,7 @@ class Service(object):
         while num < len(ret):
             # 将该条记录添加进rdrList
             ## 格式待改
-            rdrlist.append({'start':str(ret[num].start_time),'rate':ret[num].fee_rate,'spd':ret[num].speed})
+            rdrlist.append({'time':str(ret[num].start_time),'rate':ret[num].fee_rate,'spd':ret[num].speed})
             # 价钱累积
             if(num == 0):   # 第一条记录
                 time_s = ret[num].start_time
@@ -50,7 +70,7 @@ class Service(object):
             else:
                 duration = (ret[num].start_time - time_s).seconds
                 total_price = total_price + (duration * current_f_r)
-                timke_s = ret[num].start_time
+                time_s = ret[num].start_time
                 current_f_r = ret[num].fee_rate
             num = num + 1
 
@@ -95,10 +115,12 @@ class Service(object):
         # 计算温度，每工作1秒改变温度0.01度
         if self.is_working == True:
             sche = gDict["schedule"]
-            if gDict["settings"].get("mode") == "cold":
+            if gDict["settings"].get("mode") == "C":
                 curtmp = room.tmp_dec((datetime.now() - room.last_op_time).seconds * 0.01)
                 # 当温度低于目标温度时，暂停服务进入等待序列
                 if curtmp < self.trg_tmp:
+                    room.set_state("H")
+                    iRecordDAO.iRecordDAO().AddRecord(self.room_id, self.speed, "hold")
                     waiting = sche.GetLongestWait()
                     sche.ReleaseService(self.service_id)
                     # 若等待队列不为空，则等待队列中等待时间最长的目标开始服务
@@ -109,6 +131,8 @@ class Service(object):
                 curtmp = room.tmp_up((datetime.now() - room.last_op_time).seconds * 0.01)
                 # 当温度高于目标温度时，暂停服务进入等待序列
                 if curtmp > self.trg_tmp:
+                    room.set_state("H")
+                    iRecordDAO.iRecordDAO().AddRecord(self.room_id, self.speed, "hold")
                     waiting = sche.GetLongestWait()
                     sche.ReleaseService(self.service_id)
                     if waiting != None:

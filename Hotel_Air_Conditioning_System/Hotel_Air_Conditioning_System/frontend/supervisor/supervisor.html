@@ -8,115 +8,272 @@
 </head>
 
 <body>
-    <button onclick="refresh()">刷新</button>
-    <br>
-    <input id="inputId" type="text">
-    <!--入住、退房功能的参数，含义为房号-->
-    <button onclick="checkIn()">入住</button>
-    <button onclick="checkOut()">退房</button>
-    <div id="table"></div>
+    <button id="controlButton" type="button" onclick="onStartClick()">开机</button>
+    <div id="paraDiv" hidden>
+        <p><label>模式：制冷</label>
+            <input id="CRadio" type="radio" name="modeRadio" value="C" onchange="onModeChange(this.value)">
+            <label>制热</label>
+            <input id="WRadio" type="radio" name="modeRadio" value="W" onchange="onModeChange(this.value)">
+        </p>
+        <p><label>调温最高温度：</label><input id="tmpHInput"></p>
+        <p><label>调温最低温度：</label><input id="tmpLInput"></p>
+        <p><label>调温默认温度：</label><input id="tmpDInput"></p>
+        <p><label>高风速费率：</label><input id="rateHInput"></p>
+        <p><label>中风速费率：</label><input id="rateMInput"></p>
+        <p><label>低风速费率：</label><input id="rateLInput"></p>
+    </div>
+    <div id="tableDiv" hidden></div>
+    <!--数据表格-->
 </body>
-<script> // data
-    const BaseURL = "http://.../info/";
-    var opTimeout = 3000;
-    var data = [
-        { id: 1, liveIn: true, bill: 0.0, temp: 25, on: false },
-        { id: 2, liveIn: false, bill: 21.1, temp: 21, on: true, target: 21, },
-        { id: 3, liveIn: false, bill: 1.4, temp: 25, on: true, target: 25, },
-        { id: 4, liveIn: false, bill: 0.6, temp: 26, on: true, target: 23, },
-        { id: 5, liveIn: false, bill: 5.8, temp: 25, on: true, target: 21, },
-    ];
-    var container = document.getElementById('table');
+<script>
+    const HOST = "../../";
+    const timeoutDur = 3000;
+
+    var controlButton = document.getElementById("controlButton");
+    var paraDiv = document.getElementById("paraDiv");
+    var modeValue;
+    var tmpHInput = document.getElementById("tmpHInput");
+    var tmpDInput = document.getElementById("tmpDInput");
+    var tmpLInput = document.getElementById("tmpLInput");
+    var rateHInput = document.getElementById("rateHInput");
+    var rateMInput = document.getElementById("rateMInput");
+    var rateLInput = document.getElementById("rateLInput");
+    var tableDiv = document.getElementById("tableDiv");
+    tmpHInput.value = 30;
+    tmpLInput.value = 16;
+    tmpDInput.value = 24;
+    rateHInput.value = 1.6;
+    rateMInput.value = 1.4;
+    rateLInput.value = 1.2;
+
+    var container = document.getElementById('tableDiv');
     var hot = new Handsontable(container, {
         language: "zh-CN",
         filters: true,
+        autoColumnSize: true,
         multiColumnSorting: true,
         allowInsertColumn: false,
         allowInsertRow: false,
-        allowRemoveColumn: false,
+        allowRemoveColumn: true,
         allowRemoveRow: false,
         dropdownMenu: ['filter_by_condition', 'filter_by_value', 'filter_action_bar'],
-        dataSchema: { id: null, liveIn: null, bill: null, on: null, temp: null, target: null },
-        colHeaders: ["房号", "入住", "计价", "室温", "开关", "标温"],
+        dataSchema: { id: null, ocp: null, state: null, curTmp: null, spd: null, trgTmp: null, total: null },
+        colHeaders: ["房号", "有无入住", "状态", "室温", "风速", "目标温度", "客户消费"],
         columns: [
-            { data: "id", type: 'numeric', className: "htCenter", editor: false },
-            { data: "liveIn", type: 'text', className: "htCenter", editor: false },
-            { data: "bill", type: 'numeric', className: "htRight", editor: false },
-            { data: "temp", type: 'numeric', className: "htCenter", editor: false },
-            { data: "on", type: 'text', className: "htCenter", editor: false },
-            { data: "target", type: 'numeric', className: "htCenter", editor: false }
+            { data: "id", type: 'text', className: "htCenter", editor: false },
+            { data: "ocp", type: 'text', className: "htCenter", editor: false },
+            { data: "state", type: 'text', className: "htCenter", editor: false },
+            { data: "curTmp", type: 'numeric', className: "htCenter", editor: false },
+            { data: "spd", type: 'text', className: "htCenter", editor: false },
+            { data: "trgTmp", type: 'numeric', className: "htCenter", editor: false },
+            { data: "total", type: 'numeric', className: "htCenter", editor: false }
         ],
-        data: data
+        data: []
     });
-</script>
-<script> // refresh
-    var refreshRequest = new XMLHttpRequest();
-    refreshRequest.onreadystatechange = function () {
-        if (refreshRequest.readyState == 4) {
-            if (refreshRequest.status == 200) {
-                data = JSON.parse(refreshRequest.responseText);
+
+    var powerOnRequest = new XMLHttpRequest();
+    powerOnRequest.onreadystatechange = function () {
+        if (powerOnRequest.readyState == 4) {
+            if (powerOnRequest.status == 200) {
+                controlButton.textContent = "设置参数";
+                paraDiv.removeAttribute("hidden");
+                tableDiv.hidden = true;
             }
             else {
-                console.error("refresh status error:" + refreshRequest.status);
-                alert("刷新失败");
+                console.error("powerOn status error:" + powerOnRequest.status);
+                alert("开机失败");
+            }
+            controlButton.removeAttribute("disabled");
+        }
+    }
+    powerOnRequest.ontimeout = function () {
+        alert("开机响应超时");
+        console.error("开机超时");
+        controlButton.removeAttribute("disabled");
+    }
+    var powerOnPara = new Object();
+    powerOnPara.actorType = "adm";
+    powerOnPara.requestType = "on";
+    var powerOnStr = JSON.stringify(powerOnPara)
+    function onPowerOnRequest() {
+        controlButton.disabled = true;
+        powerOnRequest.open("POST", HOST, true);
+        powerOnRequest.timeout = timeoutDur;
+        powerOnRequest.send(powerOnStr);
+    }
+
+    var setParaRequest = new XMLHttpRequest();
+    setParaRequest.onreadystatechange = function () {
+        if (setParaRequest.readyState == 4) {
+            if (setParaRequest.status == 200) {
+                controlButton.textContent = "启动！";
+                paraDiv.removeAttribute("hidden");
+                tableDiv.hidden = true;
+            }
+            else {
+                console.error("setPara status error:" + setParaRequest.status);
+                alert("设置失败");
+            }
+            controlButton.removeAttribute("disabled");
+        }
+    }
+    setParaRequest.ontimeout = function () {
+        alert("设置参数响应超时");
+        console.error("设置参数超时");
+        controlButton.removeAttribute("disabled");
+    }
+    var setParaPara = new Object();
+    setParaPara.actorType = "adm";
+    setParaPara.requestType = "para";
+    function onSetParaRequest() {
+        setParaPara.mode = modeValue;
+        setParaPara.tmpH = parseFloat(tmpHInput.value);
+        setParaPara.tmpD = parseFloat(tmpDInput.value);
+        setParaPara.tmpL = parseFloat(tmpLInput.value);
+        setParaPara.rateH = parseFloat(rateHInput.value);
+        setParaPara.rateM = parseFloat(rateMInput.value);
+        setParaPara.rateL = parseFloat(rateLInput.value);
+        if (checkSettingPara(setParaPara)) {
+            controlButton.disabled = true;
+            setParaRequest.open("POST", HOST, true);
+            setParaRequest.timeout = timeoutDur;
+            setParaRequest.send(JSON.stringify(setParaPara));
+        }
+    }
+
+    var startRequest = new XMLHttpRequest();
+    startRequest.onreadystatechange = function () {
+        if (startRequest.readyState == 4) {
+            if (startRequest.status == 200) {
+                controlButton.textContent = "查看房间状态";
+                paraDiv.hidden = true;
+                tableDiv.removeAttribute("hidden");
+            }
+            else {
+                console.error("startUp status error:" + startRequest.status);
+                alert("启动失败");
+            }
+            controlButton.removeAttribute("disabled");
+        }
+    }
+    startRequest.ontimeout = function () {
+        alert("开机响应超时");
+        console.error("开机超时");
+        controlButton.removeAttribute("disabled");
+    }
+    var startPara = new Object();
+    startPara.actorType = "adm";
+    startPara.requestType = "start";
+    var startStr = JSON.stringify(startPara);
+    function onStartUpRequest() {
+        controlButton.disabled = true;
+        startRequest.open("POST", HOST, true);
+        startRequest.timeout = timeoutDur;
+        startRequest.send(startStr);
+    }
+
+    var checkRequest = new XMLHttpRequest();
+    checkRequest.onreadystatechange = function () {
+        if (checkRequest.readyState == 4) {
+            if (checkRequest.status == 200) {
+                var checkData = JSON.parse(checkRequest.responseText);
+                for (i in checkData) {
+                    switch (checkData[i].state) {
+                        case "R": checkData[i].state = "运行"; break;
+                        case "W": checkData[i].state = "等待调度"; break;
+                        case "H": checkData[i].state = "挂起"; break;
+                        case "F": checkData[i].state = "关机"; break;
+                    }
+                    if(checkData[i].ocp=="t"){
+                        checkData[i].ocp="有";
+                    }
+                    else{
+                        checkData[i].ocp="无";
+                    }
+                }
+                hot.loadData(checkData);
+                tableDiv.removeAttribute("hidden");
+            }
+            else {
+                console.error("check status error:" + checkRequest.status);
+                alert("查看请求失败");
             }
         }
+        controlButton.removeAttribute("disabled");
     }
-    refreshRequest.ontimeout = function () {
-        alert("服务器响应超时，请联系管理员");
-        console.error("刷新超时");
+    checkRequest.ontimeout = function () {
+        alert("查看请求超时");
+        console.error("查看超时");
+        controlButton.removeAttribute("disabled");
     }
-    function refresh() { //fetch real-time data from server
-        refreshRequest.open("POST", BaseURL + "refresh", true);
-        refreshRequest.responseType = "json";
-        refreshRequest.timeout = opTimeout;
-        refreshRequest.send();
-    }
-    //var refreshInterval = setInterval("refresh()", 10000);
-</script>
-<script> // business logic
-    var bill;
-    var inputId = document.getElementById(inputId);
-    var checkInRequest = new XMLHttpRequest();
-    var checkOutRequest = new XMLHttpRequest();
-    checkInRequest.onreadystatechange = function () {
-        if (checkInRequest.status == 200) {
-            alert("入住成功");
-            refresh();
+    var checkPara = new Object();
+    checkPara.actorType = "adm";
+    checkPara.requestType = "check";
+    var checkStr = JSON.stringify(checkPara);
+    function checkSettingPara(para) {
+        var correct = true;
+        if (para.mode == null) {
+            alert("请选择模式");
+            correct = false;
         }
-        else {
-            console.error("checkIn status error:" + checkInRequest.status);
-            alert("入住操作失败");
+        if (isNaN(para.tmpH)) {
+            alert("调温最高温度数值格式错误");
+            correct = false;
+        }
+        if (isNaN(para.tmpD)) {
+            alert("调温默认温度数值格式错误");
+            correct = false;
+        }
+        if (isNaN(para.tmpL)) {
+            alert("调温最低温度数值格式错误");
+            correct = false;
+        }
+        if (para.tmpH < para.tmpL) {
+            alert("最高温不能低于最低温");
+            correct = false;
+        }
+        if (para.tmpD < para.tmpL) {
+            alert("默认温度不能低于最低温");
+            correct = false;
+        }
+        if (para.tmpD > para.tmpH) {
+            alert("默认温度不能高于最高温");
+            correct = false;
+        }
+        if (isNaN(para.rateH)) {
+            alert("请输入高风速费率");
+            correct = false;
+        }
+        if (isNaN(para.rateM)) {
+            alert("请输入中风速费率");
+            correct = false;
+        }
+        if (isNaN(para.rateL)) {
+            alert("请输入低风速费率");
+            correct = false;
+        }
+        return correct;
+    }
+    function onCheckRequest() {
+        controlButton.disabled = true;
+        checkRequest.open("POST", HOST, true);
+        checkRequest.timeout = timeoutDur;
+        checkRequest.send(checkStr);
+    }
+
+    function onStartClick() {
+        switch (controlButton.textContent) {
+            case "开机": onPowerOnRequest(); break;
+            case "设置参数": onSetParaRequest(); break;
+            case "启动！": onStartUpRequest(); break;
+            case "查看房间状态": onCheckRequest(); break;
         }
     }
-    checkInRequest.ontimeout = function () {
-        alert("服务器响应超时，请联系管理员");
-        console.error("入住操作超时");
+
+    function onModeChange(value) {
+        modeValue = value;
     }
-    checkOutRequest.onreadystatechange = function () {
-        if (checkOutRequest.status == 200) {
-            alert("总额:" + checkOutRequest.responseText);// bill returned
-            refresh();
-        }
-        else {
-            console.error("checkOut status error:" + checkOutRequest.status);
-            alert("退房操作失败");
-        }
-    }
-    checkOutRequest.ontimeout = function () {
-        alert("服务器响应超时，请联系管理员");
-        console.error("退房操作超时");
-    }
-    function checkIn() { //checkin operation
-        checkInRequest.open("POST", BaseURL + "checkIn", true);
-        checkInRequest.timeout = opTimeout;
-        checkInRequest.send(inputId.value);
-    }
-    function checkOut() { //checkin operation
-        checkOutRequest.open("POST", BaseURL + "checkOut", true);
-        checkOutRequest.timeout = opTimeout;
-        checkOutRequest.send(inputId.value);
-    }
+
 </script>
 
 </html>

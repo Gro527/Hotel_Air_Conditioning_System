@@ -10,8 +10,8 @@ class Invoice(object):
         self.date_out = date_out
         self.total = total
     def out_file(self):
-        base_fname = "inv_"+str(self.room_id)+"_"+str(self.date_in)
-        f = open(current_app.root_path+"\\inv\\"+base_fname+"_json.json","a")
+        base_fname = "inv_"+str(self.room_id)+"_"+str(self.date_in)+"-"+str(self.date_out)
+        f = open(current_app.root_path+"\\inv\\"+base_fname+"_json.json","w")
         content = {}
         content["invoice_id"] = self.invoice_id
         content["room_id"] = self.room_id

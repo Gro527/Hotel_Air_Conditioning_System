@@ -48,6 +48,10 @@ def resource(filename):
     dirpath = os.path.join(app.root_path, "frontend/static") #定位至后台程序所在目录的static文件下
     return send_from_directory(dirpath, filename, as_attachment=True)
 
+@app.route('/download/<path:filename>')
+def download(filename):
+    dirpath = os.path.join(app.root_path)
+    return send_from_directory(dirpath, filename, as_attachment=True)
 
 
 
@@ -124,11 +128,8 @@ def StartUp():
 def CheckRoomState():
     data = request.data
     params = json.loads(data)
-    list_roomid = params.get("idList", 0)
-    if list_roomid == 0:
-        return "wrong attr", 400
     csc = CheckStateController.CheckStateController()
-    return cors_resp(csc.CheckRoomState(list_roomid))
+    return cors_resp(csc.CheckRoomState())
 
 
 
@@ -221,11 +222,20 @@ def create_rdr():
     if params.get("roomID", 0) == 0:
         return "roomID not found", 400
     roomID = params["roomID"]
-    ## .....
-    dateOut=datetime.now()  
     cRDRc = CreateRDRController.CreateRDRController()
     RDR = cRDRc.CreateRDR(roomID)
     return RDR
+
+@app.route('/api/inf/print', methods=['POST'])
+def print_inv_rdr():
+    data = request.data
+    params = json.loads(data)
+    room_id = params.get("id")
+    typee = params.get("type")
+    dateIn = params.get("dateIn")
+    dateOut = params.get("dateOut")
+    base_fname = typee+"_"+str(room_id)+"_"+str(dateIn)+"-"+str(dateOut)+"_json.json"
+    return redirect("/download/"+typee+"/"+base_fname)
 
 
 
@@ -235,12 +245,25 @@ def create_rdr():
 def QueryReport():
     data = request.data
     params = json.loads(data)
-    idList = params.get("idList", 0)
     rep_type = params.get("type", 0)
-    until = params.get("until", 0)
-    if idList == 0 | rep_type == 0 | until == 0:
-        return "wrong attr", 400
-    ## ....
+    until = datetime.strptime(params.get("until","1970-1-1"),"%Y-%m-%d")
+    print(until)
+    if rep_type == 0:
+        return "Invalid Request", 400
+    if until == 0:
+        return "Invalid Request", 400
+    rc = ReporterController.ReporterController()
+    res = rc.QueryReport(rep_type, until)
+    return res
+
+@app.route('/api/mng/print', methods=['POST'])
+def PrintReport():
+    data = request.data
+    params = json.loads(data)
+    type_report = params.get("type", 0)
+    until = params.get("until","1970-1-1")
+    base_fname = "rep_"+type_report+"_"+until+"_json.json"
+    return redirect("/download/rep/"+base_fname)
 
 
 

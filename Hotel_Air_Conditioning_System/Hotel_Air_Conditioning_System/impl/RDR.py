@@ -9,8 +9,8 @@ class RDR(object):
         self.total = total
         self.rList = rList
     def out_file(self):
-        base_fname = "rdr_"+str(self.room_id)+"_"+str(self.date_in)
-        f = open(current_app.root_path+"\\rdr\\"+base_fname+"_json.json","a")
+        base_fname = "rdr_"+str(self.room_id)+"_"+str(self.date_in)+"-"+str(self.date_out)
+        f = open(current_app.root_path+"\\rdr\\"+base_fname+"_json.json","w")
         content = {}
         content["invoice_id"] = self.invoice_id
         content["room_id"] = self.room_id
