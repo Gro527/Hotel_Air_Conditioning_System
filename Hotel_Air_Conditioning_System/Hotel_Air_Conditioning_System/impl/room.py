@@ -1,4 +1,4 @@
-tmp_today = 28
+tmp_today = 38
 from datetime import datetime
 # room.state = {"R","W","F","H"}
 class room(object):

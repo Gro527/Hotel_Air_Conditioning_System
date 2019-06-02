@@ -18,7 +18,7 @@ def cors_resp(resp_text):
     resp = Response(resp_text)
     resp.headers["Access-Control-Allow-Origin"] = "*"
     resp.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-    resp.headers["Access-Control-Allow-Headers"] =  "X-PINGOTHER, Content-Type"
+    resp.headers["Access-Control-Allow-Headers"] =  "X-GOTHER, Content-Type"
     resp.headers["Access-Control-Max-Age"] = "86400"
     return resp
 
@@ -38,6 +38,24 @@ def re_route():
             return "requestType not found", 400
         actor = params["actorType"]
         req_type = params["requestType"]
+        # 对无法重定向的顾客端单独处理
+        if actor == "cos":
+            if params.get("roomID", 0) == 0:
+                return "roomID not found", 400
+            roomID = params["roomID"]
+            oc = OperateController.OperateController()
+            if req_type == "on":
+                return cors_resp(oc.RequestOn(roomID))
+            elif req_type == "ref":
+                return cors_resp(oc.Refresh(roomID))
+            elif req_type == "spd":
+                target_spd = params.get("trg","M")
+                return cors_resp(oc.ChangeFanSpeed(roomID, target_spd))
+            elif req_type == "tmp":
+                target_temp = params.get("trg",0)
+                return cors_resp(oc.ChangeTargetTemp(roomID, target_temp))
+            elif req_type == "off":
+                return cors_resp(oc.RequestOff(roomID))
         return redirect('./api/'+actor+'/'+req_type, code=307)
 
 
@@ -189,7 +207,7 @@ def create_invoice():
     
     cIc = CreateInvoiceController.CreateInvoiceController()
     Invoice = cIc.CreateInvoice(roomID)
-    return Invoice
+    return cors_resp(Invoice)
 
 # 获取详单
 @app.route('/api/inf/rdr', methods=['POST'])
@@ -201,7 +219,7 @@ def create_rdr():
     roomID = params["roomID"]
     cRDRc = CreateRDRController.CreateRDRController()
     RDR = cRDRc.CreateRDR(roomID)
-    return RDR
+    return cors_resp(RDR)
 
 # 打印
 @app.route('/api/inf/print', methods=['POST'])
@@ -214,7 +232,7 @@ def print_inv_rdr():
     dateIn = datetime.strptime(params.get("dateIn"), "%Y-%m-%d %H:%M:%S")
     dateOut = datetime.strptime(params.get("dateOut"),"%Y-%m-%d %H:%M:%S")
     base_fname = typee+"_"+str(room_id)+"_"+datetime.strftime(dateIn,"%Y-%m-%d-%H%M%S")+"-"+datetime.strftime(dateOut,"%Y-%m-%d-%H%M%S")+"_json.txt"
-    return "download/"+typee+"/"+base_fname
+    return cors_resp("download/"+typee+"/"+base_fname)
 
 
 
@@ -234,7 +252,7 @@ def QueryReport():
         return "Invalid Request", 400
     rc = ReporterController.ReporterController()
     res = rc.QueryReport(rep_type, until)
-    return res
+    return cors_resp(res)
 
 @app.route('/api/mng/print', methods=['POST'])
 def PrintReport():
@@ -244,7 +262,7 @@ def PrintReport():
     until_full = params.get("until","1970-1-1")
     until = str(datetime.strptime(until_full,"%Y-%m-%d %H:%M:%S").date())
     base_fname = "rep_"+type_report+"_"+until+"_json.txt"
-    return "download/rep/"+base_fname
+    return cors_resp("download/rep/"+base_fname)
 
 
 
